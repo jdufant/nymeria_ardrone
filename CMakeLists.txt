@@ -81,7 +81,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-	INCLUDE_DIRS include
+	#INCLUDE_DIRS include
 	LIBRARIES nymeria_ardrone
 	CATKIN_DEPENDS ardrone_autonomy geometry_msgs roscpp std_msgs
 	DEPENDS system_lib
@@ -104,7 +104,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(nymeria_ardrone src/teleop_keyboard.cpp)
+add_executable(nymeria_commande src/teleop_keyboard.cpp)
 #add_executable(nymeria_ardrone src/commande.cpp)
 
 ## Add cmake target dependencies of the executable/library
@@ -112,10 +112,7 @@ add_executable(nymeria_ardrone src/teleop_keyboard.cpp)
 # add_dependencies(nymeria_ardrone_node nymeria_ardrone_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(
-	nymeria_ardrone
-	${catkin_LIBRARIES}
-)
+target_link_libraries(nymeria_commande ${catkin_LIBRARIES})
 
 #############
 ## Install ##
