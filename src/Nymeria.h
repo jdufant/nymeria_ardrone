@@ -9,6 +9,11 @@
 #include "ardrone_autonomy/Navdata.h"
 #include "NymeriaConstants.h"
 
+/**
+ * Declaration of the class Nymeria, that declares all functionalities
+ * in order to allow for drone navigation with obstacle detection and avoidance.
+ */
+
 /*
 vp_os_mutex_t mutexStateDrone;
 vp_os_mutex_init(&mutexStateDrone);

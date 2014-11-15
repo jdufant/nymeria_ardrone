@@ -1,3 +1,8 @@
+/**
+ * Declaration of the class NymeriaConstants, that defines all constants necessary
+ * to define both commands and states of the drone and obstacles.
+ */
+
 class NymeriaConstants{
   public:
     NymeriaConstants();

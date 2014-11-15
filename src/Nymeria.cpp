@@ -1,5 +1,10 @@
 #include "Nymeria.h"
 
+/**
+ * Definition of the class Nymeria, that defines all functionalities
+ * in order to allow for drone navigation with obstacle detection and avoidance.
+ */
+
 /* PRIVATE methods */
 /**
  * Helper function in order to forward user's command
