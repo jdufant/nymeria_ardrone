@@ -1,4 +1,5 @@
 #include "Nymeria.h"
+#include "NymeriaParamExc.h"
 
 /**
  * Definition of the class Nymeria, that defines all functionalities
@@ -96,9 +97,9 @@ void Nymeria::nymeriaRoutine(int cmd){
 void Nymeria::triggerAction(int cmd){
 	switch(cmd){
 	case NymeriaConstants::M_FORWARD:
-			ROS_INFO("M_FORWARD");
-	move_msg.linear.x = 1;
-	break;
+		ROS_INFO("M_FORWARD");
+		move_msg.linear.x = 1;
+		break;
 	case NymeriaConstants::M_BACKWARD:
 		ROS_INFO("M_BACKWARD");
 		move_msg.linear.x = -1;
@@ -203,7 +204,7 @@ void Nymeria::triggerAction(int cmd){
 
 
 void Nymeria::modifyStateDrone(int cmd){
-	// beetween 1 and 12
+	// between 1 and 12
 	if(cmd >= 1 || cmd <= 12){
 		// TODO MUTEX parameter 1
 		if(nh->hasParam("nymeria_ardrone/stateDrone"))
@@ -218,9 +219,12 @@ void Nymeria::modifyStateDrone(int cmd){
  *
  * Recursive function, that terminates, when either there is
  * a conflict between states and input command (trigger
- * reactionRoutine) or
+ * reactionRoutine) (Case 1) or
  * states and command are compatible and the command has been
- * sent the first time.
+ * sent the first time (forward command) (Case 2).
+ * Otherwise: When none of the above cases apply, it means that
+ * the drone is moving (forward) and program has to keep checking
+ * states in order to detect obstacles (Case 3).
  *
  * @param cmd - incoming command: Either M_FORWARD (termination)
  * or CHECK (recursive function call to validateStates(CHECK).
@@ -228,28 +232,46 @@ void Nymeria::modifyStateDrone(int cmd){
 void Nymeria::validateStates(int cmd){
 	int tmpStateDrone;
 	int tmpStateObstacle;
-	// are the two states in conflict
-	if(nh->getParam("nymeria_ardrone/stateDrone", stateDrone))
-		tmpStateDrone = stateDrone;
-	// TODO exception if false + function
 
-	if(nh->getParam("nymeria_ardrone/stateObstacle", stateObstacle))
-		tmpStateObstacle = stateObstacle;
+	try{
+		/* Get current state of drone. */
+		if(nh->getParam("nymeria_ardrone/stateDrone", stateDrone))
+			tmpStateDrone = stateDrone;
+		else
+			throw NymeriaParamExc();
+		/* Get current state of obstacle. */
+		if(nh->getParam("nymeria_ardrone/stateObstacle", stateObstacle))
+			tmpStateObstacle = stateObstacle;
+		else
+			throw NymeriaParamExc();
 
-	// TODO exception if false
+	} catch(NymeriaExceptions& error){
+		/* Display error message. */
+		// TODO: wrap as ROS msg
+		printf(error.what());
+	}
 
 
-	if((tmpStateDrone == NymeriaConstants::M_FORWARD) && (tmpStateObstacle == NymeriaConstants::O_FRONT)){
+	/* Are the two states in conflict? (Case 1) */
+	if(	   (tmpStateDrone == NymeriaConstants::M_FORWARD)
+			&& (tmpStateObstacle == NymeriaConstants::O_FRONT)){
 		reactionRoutine();
 		// exit recursion/loop
 		return;
 	}
-	else if (cmd > 0){
-		triggerAction(cmd);
-		// exit recursion/loop
-		return;
-	}
+	else
+		/* Command is being processed the first time. (Case 2) */
+		if (cmd > 0){
+			triggerAction(cmd);
+			// exit recursion/loop
+			return;
+		}
 
+	/*
+	 * (Case 3)
+	 * Recursive call --> Drone is moving forward.
+	 * Keep checking states.
+	 */
 	validateStates(NymeriaConstants::CHECK);
 	return;
 }
