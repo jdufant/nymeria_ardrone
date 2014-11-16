@@ -47,7 +47,6 @@ class Nymeria
 		void decreaseAngularSpeed();
 
 	private:
-		NymeriaConstants cst;
 		ros::NodeHandle * nh;
 		  /**Publishers, to send messages on topics**/
 		ros::Publisher pub_cmd_takeoff;

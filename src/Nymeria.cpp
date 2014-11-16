@@ -95,7 +95,7 @@ void Nymeria::nymeriaRoutine(int cmd){
  */
 void Nymeria::triggerAction(int cmd){
 	switch(cmd){
-	case (&cst)->M_FORWARD:
+	case NymeriaConstants::M_FORWARD:
 			ROS_INFO("M_FORWARD");
 	move_msg.linear.x = 1;
 	break;
