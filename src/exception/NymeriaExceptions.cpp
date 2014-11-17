@@ -1,4 +1,4 @@
-#include "NymeriaExceptions.h"
+#include <nymeria_ardrone/NymeriaExceptions.h>
 
 /**
  * Definition of the class NymeriaExceptions, that defines the base class

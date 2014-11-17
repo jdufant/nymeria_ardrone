@@ -1,5 +1,5 @@
-#include "Nymeria.h"
-#include "NymeriaParamExc.h"
+#include <nymeria_ardrone/Nymeria.h>
+#include <nymeria_ardrone/NymeriaParamExc.h>
 
 /**
  * Definition of the class Nymeria, that defines all functionalities
@@ -17,7 +17,6 @@
 // void stateDroneCallback (const ardrone_autonomy::Navdata& data){
 // 	navData.state = data.state;
 // }
-
 
 Nymeria::Nymeria(){};
 Nymeria::Nymeria(ros::NodeHandle * n)

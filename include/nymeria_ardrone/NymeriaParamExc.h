@@ -1,4 +1,4 @@
-#include "NymeriaExceptions.h"
+#include <nymeria_ardrone/NymeriaExceptions.h>
 
 /**
  * Declaration of the class NymeriaParamExc, that declares the exception

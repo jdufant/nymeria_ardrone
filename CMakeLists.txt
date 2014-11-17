@@ -5,7 +5,7 @@ project(nymeria_ardrone)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-	roscpp
+	roscpp REQUIRED
 	ardrone_autonomy
 	geometry_msgs
 	std_msgs
@@ -80,10 +80,11 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
+
 catkin_package(
-	#INCLUDE_DIRS include
+	INCLUDE_DIRS include
 	LIBRARIES nymeria_ardrone
-	CATKIN_DEPENDS ardrone_autonomy geometry_msgs roscpp std_msgs
+	CATKIN_DEPENDS roscpp geometry_msgs std_msgs ardrone_autonomy
 	DEPENDS system_lib
 )
 
@@ -91,28 +92,41 @@ catkin_package(
 ## Build ##
 ###########
 
-## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
 include_directories(
-  ${catkin_INCLUDE_DIRS}
+	include
+	${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-# add_library(nymeria_ardrone
-#   src/${PROJECT_NAME}/nymeria_ardrone.cpp
-# )
+set(LIBRARY_SOURCES
+	src/Nymeria.cpp
+	src/exception/NymeriaExceptions.cpp
+	src/exception/NymeriaParamExc.cpp
+)
+
+add_library(
+  	nymeria_ardrone ${LIBRARY_SOURCES}
+)
+
+# becauselibrary depends on libraries provided by other catkin packages
+target_link_libraries(nymeria_ardrone ${catkin_LIBRARIES})
+target_link_libraries(nymeria_ardrone
+	${catkin_INCLUDE_DIRS}
+)
+
+#target_include_directories (nymeria_ardrone PUBLIC ${HEADERS_DIRECTORIES} ${EXCEPTIONS_HEADERS_DIRECTORIES})
 
 ## Declare a cpp executable
-add_executable(nymeria_commande src/teleop_keyboard.cpp)
-#add_executable(nymeria_ardrone src/commande.cpp)
-
+add_executable(
+	nymeria_command	src/teleop_keyboard.cpp
+)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(nymeria_ardrone_node nymeria_ardrone_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(nymeria_commande ${catkin_LIBRARIES})
+target_link_libraries (nymeria_command ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -123,18 +137,17 @@ target_link_libraries(nymeria_commande ${catkin_LIBRARIES})
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-install(
-	PROGRAMS
-	#ardrone_teleop_keyboard.py
-	src/teleop_keyboard.cpp
-	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+#install(
+#	PROGRAMS
+#	src/teleop_keyboard.cpp
+#	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS nymeria_ardrone nymeria_ardrone_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#install(TARGETS nymeria_ardrone
+#	ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#	RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
 ## Mark cpp header files for installation

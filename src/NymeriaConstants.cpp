@@ -1,4 +1,4 @@
-#include "NymeriaConstants.h"
+#include <nymeria_ardrone/NymeriaConstants.h>
 
 /**
  * Definition of the class NymeriaConstants.
