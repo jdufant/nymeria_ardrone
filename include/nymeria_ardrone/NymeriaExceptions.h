@@ -1,3 +1,6 @@
+#ifndef NYMERIA_EXCEPTIONS_H
+#define NYMERIA_EXCEPTIONS_H
+
 #include <exception>
 #include <string>
 using namespace std;
@@ -15,3 +18,5 @@ class NymeriaExceptions : public exception{
 	private:
 		string errMsg;
 };
+
+#endif

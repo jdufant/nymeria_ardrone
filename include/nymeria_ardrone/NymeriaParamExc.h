@@ -1,3 +1,6 @@
+#ifndef NYMERIA_PARAM_EXC_H
+#define NYMERIA_PARAM_EXC_H
+
 #include <nymeria_ardrone/NymeriaExceptions.h>
 
 /**
@@ -13,3 +16,5 @@ public:
 	virtual ~NymeriaParamExc(void) throw();
 	virtual const char * what() const throw();
 };
+
+#endif

@@ -204,18 +204,16 @@ void Nymeria::triggerAction(int cmd){
 void Nymeria::modifyStateDrone(int cmd){
 	// between 1 and 12
 	if(cmd >= 1 || cmd <= 12){
-		NymeriaMutexDrone::lock();
-		ROS_WARN("locked 1");
-			ROS_WARN("job done");
-			if(nh->hasParam("nymeria_ardrone/stateDrone"))
-				nh->setParam("nymeria_ardrone/stateDrone", cmd);
-		NymeriaMutexDrone::unlock();
-		ROS_WARN("unlock 1");
 
+		NymeriaMutexDrone::lock();
+			ROS_WARN("job done");
+			if(nh->hasParam("stateDrone"))
+				nh->setParam("stateDrone", cmd);
+		NymeriaMutexDrone::unlock();
 		
 		return;
 	}
-/***************** TO DO NEED TO KNOW !!!! ****************/
+
 	validateStates(NymeriaConstants::CHECK);
 }
 

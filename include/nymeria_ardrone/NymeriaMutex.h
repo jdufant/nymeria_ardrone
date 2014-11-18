@@ -1,5 +1,5 @@
-#ifndef NYMERIA_MUTEX
-#define NYMERIA_MUTEX
+#ifndef NYMERIA_MUTEX_H
+#define NYMERIA_MUTEX_H
 
 class NymeriaMutex {
 	public:

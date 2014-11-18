@@ -140,7 +140,6 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 			}
 
 		loop_rate.sleep();
-
 	}
 	return;
 }

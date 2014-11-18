@@ -1,5 +1,5 @@
-#ifndef SRC_HEADERS_TELEOP_KEYBOARD_H
-#define SRC_HEADERS_TELEOP_KEYBOARD_H
+#ifndef NYMERIA_TELEOP_KEYBOARD_H
+#define NYMERIA_TELEOP_KEYBOARD_H
 
 #include <signal.h>
 #include <termios.h>

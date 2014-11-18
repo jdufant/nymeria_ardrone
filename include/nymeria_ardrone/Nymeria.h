@@ -1,5 +1,5 @@
-#ifndef NYMERIA_ENVIRONMENT
-#define NYMERIA_ENVIRONMENT
+#ifndef NYMERIA_ENVIRONMENT_H
+#define NYMERIA_ENVIRONMENT_H
 
 #include "ros/ros.h"
 #include "std_msgs/Empty.h"
@@ -9,21 +9,12 @@
 #include <ardrone_autonomy/Navdata.h>
 #include <nymeria_ardrone/NymeriaConstants.h>
 #include <nymeria_ardrone/NymeriaMutexDrone.h>
-// #include <nymeria_ardrone/NymeriaMutexObstacle.h>
+#include <nymeria_ardrone/NymeriaMutexObstacle.h>
 
 /**
  * Declaration of the class Nymeria, that declares all functionalities
  * in order to allow for drone navigation with obstacle detection and avoidance.
  */
-
-/*
-vp_os_mutex_t mutexStateDrone;
-vp_os_mutex_init(&mutexStateDrone);
-vp_os_mutex_lock(&mutexStateDrone);
-vp_os_mutex_unlock(&mutexStateDrone);
-// void stateDroneCallback (const ardrone_autonomy::Navdata& data);
-*/
-
 class Nymeria
 {
 	public:

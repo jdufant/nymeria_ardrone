@@ -1,3 +1,6 @@
+#ifndef NYMERIA_CONSTANTS_H
+#define NYMERIA_CONSTANTS_H
+
 /**
 * Declaration of the class NymeriaConstants, that defines all constants necessary
 * to define both commands and states of the drone and obstacles.
@@ -29,3 +32,5 @@ class NymeriaConstants{
 		static const int O_FRONT = 21;
 		
 };
+
+#endif

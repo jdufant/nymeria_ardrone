@@ -1,5 +1,5 @@
-#ifndef NYMERIA_MUTEX_DRONE
-#define NYMERIA_MUTEX_DRONE
+#ifndef NYMERIA_MUTEX_DRONE_H
+#define NYMERIA_MUTEX_DRONE_H
 
 #include <nymeria_ardrone/NymeriaMutex.h>
 
