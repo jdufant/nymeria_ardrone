@@ -8,7 +8,8 @@
 #include "std_msgs/String.h"
 #include <ardrone_autonomy/Navdata.h>
 #include <nymeria_ardrone/NymeriaConstants.h>
-#include <boost/thread/mutex.hpp>
+#include <nymeria_ardrone/NymeriaMutexDrone.h>
+// #include <nymeria_ardrone/NymeriaMutexObstacle.h>
 
 /**
  * Declaration of the class Nymeria, that declares all functionalities
@@ -46,6 +47,7 @@ class Nymeria
 		void decreaseLinearSpeed();
 		void increaseAngularSpeed();
 		void decreaseAngularSpeed();
+		
 
 	private:
 		ros::NodeHandle * nh;
@@ -56,12 +58,10 @@ class Nymeria
 		ros::Publisher pub_cmd_reset;
 		ardrone_autonomy::Navdata navData;		
 		ros::Subscriber sub_navdata;
-		boost::mutex mutexStateDrone;
-		boost::mutex mutexStateObstacle;
 		
 		std_msgs::Empty empty_msg;
 		geometry_msgs::Twist move_msg;
-
+		
 		int stateDrone;
 		int stateObstacle;
 

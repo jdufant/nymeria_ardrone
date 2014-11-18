@@ -20,7 +20,7 @@
 // }
 
 Nymeria::Nymeria(){};
-Nymeria::Nymeria(ros::NodeHandle * n)
+Nymeria::Nymeria(ros::NodeHandle * n)   
 {
 	speed = 0.2;
 
@@ -52,14 +52,11 @@ Nymeria::Nymeria(ros::NodeHandle * n)
 
 	nh = n;
 
-	boost::mutex mutexStateDrone();
-	boost::mutex mutexStateObstacle();
-
 	/* Set parameters shared with all ROS nodes. */ 
 	// nh->setParam("nymeria/mutexStateDrone", true);
 	// nh->setParam("nymeria/mutexStateObstacle", true);
-	nh->setParam("nymeria_ardrone/stateDrone", 0);
-	nh->setParam("nymeria_ardrone/stateObstacle", 0);
+	nh->setParam("stateDrone", 0);
+	nh->setParam("stateObstacle", 0);
 
 	pub_cmd_takeoff = nh->advertise<std_msgs::Empty>("ardrone/takeoff", 10);
 	pub_cmd_land = nh->advertise<std_msgs::Empty>("ardrone/land", 10);
@@ -207,15 +204,21 @@ void Nymeria::triggerAction(int cmd){
 void Nymeria::modifyStateDrone(int cmd){
 	// between 1 and 12
 	if(cmd >= 1 || cmd <= 12){
-		mutexStateDrone.lock();
+		NymeriaMutexDrone::lock();
+		ROS_WARN("locked 1");
 			ROS_WARN("job done");
 			if(nh->hasParam("nymeria_ardrone/stateDrone"))
 				nh->setParam("nymeria_ardrone/stateDrone", cmd);
-		mutexStateDrone.unlock();
+		NymeriaMutexDrone::unlock();
+		ROS_WARN("unlock 1");
+
+		
+		return;
 	}
 /***************** TO DO NEED TO KNOW !!!! ****************/
 	validateStates(NymeriaConstants::CHECK);
 }
+
 /**
  * Check whether current state of drone and current state of
  * obstacle are compatible with user's command.
@@ -251,7 +254,7 @@ void Nymeria::validateStates(int cmd){
 	} catch(NymeriaExceptions& error){
 		/* Display error message. */
 		// TODO: wrap as ROS msg
-		printf(error.what());
+		fprintf(stderr,error.what());
 	}
 
 

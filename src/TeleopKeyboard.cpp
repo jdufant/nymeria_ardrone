@@ -38,6 +38,9 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 
 	Nymeria nymeria(n);
 
+	int rate = 1;
+	ros::Rate loop_rate(rate);
+
 	// get the console in raw mode                                                              
 	tcgetattr(kfd, &cooked);
 	memcpy(&raw, &cooked, sizeof(struct termios));
@@ -71,8 +74,7 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 
 	int count=0;
 
-	while(ros::ok())
-	{
+	while(ros::ok()){
 		count++;
 		// get the next event from the keyboard  
 		if(read(kfd, &c, 1) < 0){
@@ -136,6 +138,8 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 				break;
 
 			}
+
+		loop_rate.sleep();
 
 	}
 	return;

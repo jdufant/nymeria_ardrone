@@ -27,6 +27,9 @@ http://wiki.ros.org/roslaunch/XML/node
 			<rosparam param="cov/imu_or">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 100000.0]</rosparam>
 	</node>
 
-	<node ns="nymeria_ardrone" name="teleop_keyboard" pkg="nymeria_ardrone" type="teleop_keyboard.cpp" output ="screen" clear_params="true" respawn="false" launch-prefix="xterm -e">
+	<node ns="nymeria_ardrone" name="nymeria_command" pkg="nymeria_ardrone" type="nymeria_command" output ="screen" clear_params="true" respawn="false" launch-prefix="xterm -e">
+	</node>
+
+	<node ns="nymeria_ardrone" name="nymeria_polling" pkg="nymeria_ardrone" type="nymeria_polling" output ="screen" clear_params="true" respawn="false">
 	</node>
 </launch>
