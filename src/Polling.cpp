@@ -12,7 +12,9 @@ int main(int argc, char **argv)
 	ros::Rate loop_rate(rate);
 
 	while(ros::ok()){
+
 		NymeriaMutexDrone::lock();
+			// TODO : get obstacle distance and add depending obstacle state
 			if(n.hasParam("stateObstacle"))
 				n.setParam("stateObstacle", NymeriaConstants::O_FRONT);
 		NymeriaMutexDrone::unlock();

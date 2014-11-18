@@ -205,12 +205,13 @@ void Nymeria::modifyStateDrone(int cmd){
 	// between 1 and 12
 	if(cmd >= 1 || cmd <= 12){
 
-		NymeriaMutexDrone::lock();
-			ROS_WARN("job done");
-			if(nh->hasParam("stateDrone"))
-				nh->setParam("stateDrone", cmd);
-		NymeriaMutexDrone::unlock();
+		if(nh->hasParam("stateDrone")){
+
+			NymeriaMutexDrone::lock();
+					nh->setParam("stateDrone", cmd);
+			NymeriaMutexDrone::unlock();
 		
+		}
 		return;
 	}
 
