@@ -7,12 +7,11 @@ using namespace std;
  * for all exceptions particular to Nymeria.
  */
 
-class NymeriaExceptions : public exception
-{
-public:
-	NymeriaExceptions(string msg);
-	virtual ~NymeriaExceptions(void) throw();
-	virtual const char * what() const throw();
-private:
-	string errMsg;
+class NymeriaExceptions : public exception{
+	public:
+		NymeriaExceptions(string msg);
+		virtual ~NymeriaExceptions(void) throw();
+		virtual const char * what() const throw();
+	private:
+		string errMsg;
 };

@@ -26,13 +26,11 @@ class TeleopKeyboard
 {
 	public:
 		TeleopKeyboard();
-		void keyLoop(ros::NodeHandle * n);
-		ros::NodeHandle nh;  
-		ros::NodeHandle * getNH(){
-			return &nh;
-		}
+		void keyLoop(ros::NodeHandle * n);  
+		ros::NodeHandle * getNH();
 
 	private:
+		ros::NodeHandle nh;
 		ros::Publisher pub_cmd_move;
 		ros::Publisher pub_cmd_takeoff;  
 		ros::Publisher pub_cmd_land; 

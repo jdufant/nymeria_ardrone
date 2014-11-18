@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -96,6 +96,7 @@ catkin_package(
 include_directories(
 	include
 	${catkin_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -106,27 +107,27 @@ set(LIBRARY_SOURCES
 )
 
 add_library(
-  	nymeria_ardrone ${LIBRARY_SOURCES}
+  	${PROJECT_NAME}
+  		${LIBRARY_SOURCES}
 )
 
-# becauselibrary depends on libraries provided by other catkin packages
-target_link_libraries(nymeria_ardrone ${catkin_LIBRARIES})
-target_link_libraries(nymeria_ardrone
-	${catkin_INCLUDE_DIRS}
+# because library depends on libraries provided by other catkin packages
+target_link_libraries(
+	${PROJECT_NAME}
+	${catkin_LIBRARIES}
+	${Boost_LIBRARIES}
 )
-
-#target_include_directories (nymeria_ardrone PUBLIC ${HEADERS_DIRECTORIES} ${EXCEPTIONS_HEADERS_DIRECTORIES})
 
 ## Declare a cpp executable
 add_executable(
-	nymeria_command	src/teleop_keyboard.cpp
+	nymeria_command	src/TeleopKeyboard.cpp
 )
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(nymeria_ardrone_node nymeria_ardrone_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries (nymeria_command ${catkin_LIBRARIES})
+target_link_libraries (nymeria_command nymeria_ardrone ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -144,25 +145,21 @@ target_link_libraries (nymeria_command ${catkin_LIBRARIES})
 #)
 
 ## Mark executables and/or libraries for installation
-#install(TARGETS nymeria_ardrone
-#	ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#	RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS nymeria_ardrone
+	ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+	RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+	DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+	FILES_MATCHING PATTERN "*.h"
+	PATTERN ".git" EXCLUDE
+)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-#install(FILES
-#	# myfile1
-#	# myfile2
-#	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-#)
+#install()
 
 #############
 ## Testing ##

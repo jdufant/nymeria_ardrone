@@ -5,12 +5,11 @@
  * for all exceptions particular to Nymeria.
  */
 
-NymeriaExceptions::NymeriaExceptions(string msg)
-{
+NymeriaExceptions::NymeriaExceptions(string msg){
 	this->errMsg = msg;
 }
 
-NymeriaExceptions::~NymeriaExceptions(void){}
+NymeriaExceptions::~NymeriaExceptions(void) throw(){}
 
 /* Overriding what() function from standard Exception. */
 const char * NymeriaExceptions::what() const throw(){

@@ -14,7 +14,8 @@
  *
  * @param data - navigation state.
  */
-// void stateDroneCallback (const ardrone_autonomy::Navdata& data){
+
+// void Nymeria::stateDroneCallback (const ardrone_autonomy::Navdata& data){
 // 	navData.state = data.state;
 // }
 
@@ -51,18 +52,21 @@ Nymeria::Nymeria(ros::NodeHandle * n)
 
 	nh = n;
 
+	boost::mutex mutexStateDrone();
+	boost::mutex mutexStateObstacle();
+
 	/* Set parameters shared with all ROS nodes. */ 
 	// nh->setParam("nymeria/mutexStateDrone", true);
 	// nh->setParam("nymeria/mutexStateObstacle", true);
-	nh->setParam("nymeria/stateDrone", 0);
-	nh->setParam("nymeria/stateObstacle", 0);
+	nh->setParam("nymeria_ardrone/stateDrone", 0);
+	nh->setParam("nymeria_ardrone/stateObstacle", 0);
 
 	pub_cmd_takeoff = nh->advertise<std_msgs::Empty>("ardrone/takeoff", 10);
 	pub_cmd_land = nh->advertise<std_msgs::Empty>("ardrone/land", 10);
 	pub_cmd_reset = nh->advertise<std_msgs::Empty>("ardrone/reset", 10);
 	pub_cmd_move = nh->advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
-	//sub_navdata = nh->subscribe("ardrone/navdata", 10, stateDroneCallback);
+	// sub_navdata = nh->subscribe("ardrone/navdata", 10, stateDroneCallback);
 
 };
 
@@ -200,16 +204,16 @@ void Nymeria::triggerAction(int cmd){
 	modifyStateDrone(cmd);
 }
 
-
-
 void Nymeria::modifyStateDrone(int cmd){
 	// between 1 and 12
 	if(cmd >= 1 || cmd <= 12){
-		// TODO MUTEX parameter 1
-		if(nh->hasParam("nymeria_ardrone/stateDrone"))
-			nh->setParam("nymeria_ardrone/stateDrone", cmd);
+		mutexStateDrone.lock();
+			ROS_WARN("job done");
+			if(nh->hasParam("nymeria_ardrone/stateDrone"))
+				nh->setParam("nymeria_ardrone/stateDrone", cmd);
+		mutexStateDrone.unlock();
 	}
-
+/***************** TO DO NEED TO KNOW !!!! ****************/
 	validateStates(NymeriaConstants::CHECK);
 }
 /**

@@ -2,6 +2,10 @@
 
 void callback (const ardrone_autonomy::Navdata& data){}
 
+ros::NodeHandle * TeleopKeyboard::getNH(){
+	return &nh;
+}
+
 TeleopKeyboard::TeleopKeyboard(){}
 
 int kfd = 0;
@@ -26,7 +30,7 @@ int main(int argc, char** argv)
 }
 
 
-void keyLoop(ros::NodeHandle * n)
+void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 {
 	char c;
 	bool dirty(false), flying(false), hovering(true);

@@ -8,13 +8,11 @@
 NymeriaParamExc::NymeriaParamExc(void) : NymeriaExceptions(""){}
 
 
-NymeriaParamExc::~NymeriaParamExc(void)
-{
-}
+NymeriaParamExc::~NymeriaParamExc(void) throw(){}
 
 /* overriding what() for particular error message. */
 const char * NymeriaParamExc::what() const throw()
 {
-  string s = "ROS parameter not existent or misspelled.";
-  return s.c_str();
+	string s = "ROS parameter not existent or misspelled.";
+	return s.c_str();
 }
