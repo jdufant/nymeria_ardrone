@@ -21,6 +21,7 @@ http://wiki.ros.org/roslaunch/XML/node
 		<param name="enemy_without_shell" value="0" />
 		<param name="do_imu_caliberation" value="false" />
 		<param name="tf_prefix" value="mydrone" />
+		<param name="output" value="7" />
 			<!-- Covariance Values (3x3 matrices reshaped to 1x9)-->
 			<rosparam param="cov/imu_la">[0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1]</rosparam>
 			<rosparam param="cov/imu_av">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
@@ -30,6 +31,8 @@ http://wiki.ros.org/roslaunch/XML/node
 	<node ns="nymeria_ardrone" name="nymeria_command" pkg="nymeria_ardrone" type="nymeria_command" output ="screen" clear_params="true" respawn="false" launch-prefix="xterm -e">
 	</node>
 
+<!--
 	<node ns="nymeria_ardrone" name="nymeria_polling" pkg="nymeria_ardrone" type="nymeria_polling" output ="screen" clear_params="true" respawn="false">
 	</node>
+-->
 </launch>

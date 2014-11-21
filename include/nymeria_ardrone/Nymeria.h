@@ -52,9 +52,11 @@ class Nymeria
 		
 		std_msgs::Empty empty_msg;
 		geometry_msgs::Twist move_msg;
+
+		static float securityDist;
 		
 		int stateDrone;
-		int stateObstacle;
+		double stateObstacle;
 
 		float speed;
 

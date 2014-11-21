@@ -53,10 +53,14 @@ Nymeria::Nymeria(ros::NodeHandle * n)
 	nh = n;
 
 	/* Set parameters shared with all ROS nodes. */ 
-	// nh->setParam("nymeria/mutexStateDrone", true);
-	// nh->setParam("nymeria/mutexStateObstacle", true);
-	nh->setParam("stateDrone", 0);
-	nh->setParam("stateObstacle", 0);
+	
+	NymeriaMutexDrone::lock();
+		nh->setParam("stateDrone", 0);
+	NymeriaMutexDrone::unlock();
+
+	NymeriaMutexObstacle::lock();
+		nh->setParam("stateObstacle", -1.0);
+	NymeriaMutexObstacle::unlock();
 
 	pub_cmd_takeoff = nh->advertise<std_msgs::Empty>("ardrone/takeoff", 10);
 	pub_cmd_land = nh->advertise<std_msgs::Empty>("ardrone/land", 10);
@@ -205,17 +209,19 @@ void Nymeria::modifyStateDrone(int cmd){
 	// between 1 and 12
 	if(cmd >= 1 || cmd <= 12){
 
-		if(nh->hasParam("stateDrone")){
+		if(nh->hasParam("/nymeria_ardrone/stateDrone")){
 
 			NymeriaMutexDrone::lock();
-					nh->setParam("stateDrone", cmd);
+				nh->setParam("/nymeria_ardrone/stateDrone", cmd);
 			NymeriaMutexDrone::unlock();
 		
 		}
 		return;
 	}
 
-	validateStates(NymeriaConstants::CHECK);
+	// TODO add comment to explain the behaviour
+	if(cmd >= 1) 
+		validateStates(NymeriaConstants::CHECK);
 }
 
 /**
@@ -236,16 +242,19 @@ void Nymeria::modifyStateDrone(int cmd){
  */
 void Nymeria::validateStates(int cmd){
 	int tmpStateDrone;
-	int tmpStateObstacle;
+	double tmpStateObstacle;
+
+
 
 	try{
 		/* Get current state of drone. */
-		if(nh->getParam("nymeria_ardrone/stateDrone", stateDrone))
+		if(nh->getParam("/nymeria_ardrone/stateDrone", stateDrone))
 			tmpStateDrone = stateDrone;
 		else
 			throw NymeriaParamExc();
 		/* Get current state of obstacle. */
-		if(nh->getParam("nymeria_ardrone/stateObstacle", stateObstacle))
+
+		if(nh->getParam("/nymeria_ardrone/stateObstacle", stateObstacle))
 			tmpStateObstacle = stateObstacle;
 		else
 			throw NymeriaParamExc();
@@ -253,13 +262,15 @@ void Nymeria::validateStates(int cmd){
 	} catch(NymeriaExceptions& error){
 		/* Display error message. */
 		// TODO: wrap as ROS msg
+		//ROS_INFO(stderr,error.what().c_str());
 		fprintf(stderr,error.what());
 	}
 
 
 	/* Are the two states in conflict? (Case 1) */
-	if(	   (tmpStateDrone == NymeriaConstants::M_FORWARD)
-			&& (tmpStateObstacle == NymeriaConstants::O_FRONT)){
+	if(   (tmpStateDrone == NymeriaConstants::M_FORWARD)
+	   && (tmpStateObstacle > 0)){
+		//ROS_INFO("cas 1");
 		reactionRoutine();
 		// exit recursion/loop
 		return;
@@ -267,9 +278,8 @@ void Nymeria::validateStates(int cmd){
 	else
 		/* Command is being processed the first time. (Case 2) */
 		if (cmd > 0){
+			// ROS_INFO("cas 2");
 			triggerAction(cmd);
-			// exit recursion/loop
-			return;
 		}
 
 	/*
@@ -277,7 +287,11 @@ void Nymeria::validateStates(int cmd){
 	 * Recursive call --> Drone is moving forward.
 	 * Keep checking states.
 	 */
-	validateStates(NymeriaConstants::CHECK);
+	 
+	if(!isSafeAction(cmd)){
+		// ROS_INFO("cas 3");
+		validateStates(NymeriaConstants::CHECK);
+	}
 	return;
 }
 
@@ -302,6 +316,7 @@ bool Nymeria::isSafeAction(int cmd){
  * then bypass it, i.e. navigate around it.
  */
 void Nymeria::reactionRoutine(){
+	ROS_INFO("je suis dans la routine reaction");
 	triggerAction(NymeriaConstants::STOP);
 }
 

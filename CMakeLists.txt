@@ -105,8 +105,13 @@ set(LIBRARY_SOURCES
 	src/NymeriaMutex.cpp
 	src/NymeriaMutexDrone.cpp
 	src/NymeriaMutexObstacle.cpp
+	src/NymeriaCheckObstacle.cpp
 	src/exception/NymeriaExceptions.cpp
 	src/exception/NymeriaParamExc.cpp
+)
+
+set(HEADERS_SOURCES
+include/${PROJECT_NAME}/SensorInterface.h
 )
 
 add_library(
@@ -122,8 +127,8 @@ target_link_libraries(
 )
 
 ## Declare a cpp executable
-add_executable(nymeria_command	src/TeleopKeyboard.cpp)
-add_executable(nymeria_polling	src/Polling.cpp)
+add_executable(nymeria_command		src/TeleopKeyboard.cpp)
+add_executable(nymeria_sensor_interface	src/SensorInterface.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -131,7 +136,7 @@ add_executable(nymeria_polling	src/Polling.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries (nymeria_command nymeria_ardrone ${catkin_LIBRARIES})
-target_link_libraries (nymeria_polling nymeria_ardrone ${catkin_LIBRARIES})
+target_link_libraries (nymeria_sensor_interface nymeria_ardrone ${catkin_LIBRARIES})
 
 #############
 ## Install ##

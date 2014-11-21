@@ -29,8 +29,7 @@ class NymeriaConstants{
 		static const int I_A_SPEED = 17;
 		static const int D_A_SPEED = 18;
 		static const int NO_OBSTACLE = 20;
-		static const int O_FRONT = 21;
-		
+		static const int O_FRONT = 21;		
 };
 
 #endif
