@@ -8,17 +8,17 @@ class NymeriaCheckObstacle
 	public:
 
 		NymeriaCheckObstacle();
-		NymeriaCheckObstacle(ros::NodeHandle * n, double securityDist);
+		NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist);
 
-		void inputCurFrontDist(double cfd);
+		void inputCurFrontDist(int cfd);
 
-		double getSecurityDist();
-		void setSecurityDist(double sd);
+		int getSecurityDist();
+		void setSecurityDist(int sd);
 
 	private:
 		ros::NodeHandle * nh;
 
-		double securityDist;
+		int securityDist;
 };
 
 #endif

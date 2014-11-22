@@ -3,13 +3,13 @@
 #include <nymeria_ardrone/NymeriaMutexObstacle.h>
 
 NymeriaCheckObstacle::NymeriaCheckObstacle(){}
-NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, double securityDist = 0.0){
+NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist = 0){
 	nh = n;
 	this->securityDist = securityDist;
 }
 
-void NymeriaCheckObstacle::inputCurFrontDist(double cfd){
-	double stateObstacle;
+void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
+	int stateObstacle;
 	try{
 		if(cfd < securityDist){
 
@@ -41,10 +41,10 @@ void NymeriaCheckObstacle::inputCurFrontDist(double cfd){
 	}
 }
 
-double NymeriaCheckObstacle::getSecurityDist(){
+int NymeriaCheckObstacle::getSecurityDist(){
 	return securityDist;
 }
 
-void NymeriaCheckObstacle::setSecurityDist(double sd){
+void NymeriaCheckObstacle::setSecurityDist(int sd){
 	securityDist = sd;
 }

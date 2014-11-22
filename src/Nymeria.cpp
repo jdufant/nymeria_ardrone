@@ -59,7 +59,7 @@ Nymeria::Nymeria(ros::NodeHandle * n)
 	NymeriaMutexDrone::unlock();
 
 	NymeriaMutexObstacle::lock();
-		nh->setParam("stateObstacle", -1.0);
+		nh->setParam("stateObstacle", -1);
 	NymeriaMutexObstacle::unlock();
 
 	pub_cmd_takeoff = nh->advertise<std_msgs::Empty>("ardrone/takeoff", 10);
@@ -242,7 +242,7 @@ void Nymeria::modifyStateDrone(int cmd){
  */
 void Nymeria::validateStates(int cmd){
 	int tmpStateDrone;
-	double tmpStateObstacle;
+	int tmpStateObstacle;
 
 
 
