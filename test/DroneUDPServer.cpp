@@ -19,6 +19,8 @@ int main()
 
 	struct termios options;
 
+	
+
 	fd = open("/dev/ttyUSB0", O_RDONLY | O_NOCTTY | O_NDELAY);
 	if (fd == -1) {
 		perror("open_port: Unable to open /dev/ttyUSB0");

@@ -22,7 +22,8 @@
 Nymeria::Nymeria(){};
 Nymeria::Nymeria(ros::NodeHandle * n)   
 {
-	speed = 0.2;
+	speed = 0.05;
+	lastCmd = 0;
 
 	move_msg.linear.x = 0;
 	move_msg.linear.y = 0;
@@ -49,6 +50,7 @@ Nymeria::Nymeria(ros::NodeHandle * n)
 	safeActions[14] = NymeriaConstants::D_L_SPEED;
 	safeActions[15] = NymeriaConstants::I_A_SPEED;
 	safeActions[16] = NymeriaConstants::D_A_SPEED;
+	safeActions[17] = NymeriaConstants::CHECK;
 
 	nh = n;
 
@@ -67,6 +69,8 @@ Nymeria::Nymeria(ros::NodeHandle * n)
 	pub_cmd_reset = nh->advertise<std_msgs::Empty>("ardrone/reset", 10);
 	pub_cmd_move = nh->advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
+
+
 	// sub_navdata = nh->subscribe("ardrone/navdata", 10, stateDroneCallback);
 
 };
@@ -83,22 +87,16 @@ Nymeria::Nymeria(ros::NodeHandle * n)
 //	navData.state = data.state;
 //}
 
-/**
- * Procedure that processes incoming command.
- * @param cmd - incoming command.
- */
-void Nymeria::nymeriaRoutine(int cmd){
-	if(isSafeAction(cmd))
-		triggerAction(cmd);
-	else
-		validateStates(cmd);
-}
 
 /**
  * Forward command to drone.
  * @param cmd - incoming command.
  */
 void Nymeria::triggerAction(int cmd){
+
+	if(cmd == lastCmd)
+		return;
+
 	switch(cmd){
 	case NymeriaConstants::M_FORWARD:
 		ROS_INFO("M_FORWARD");
@@ -146,12 +144,12 @@ void Nymeria::triggerAction(int cmd){
 	case NymeriaConstants::TAKEOFF:
 		ROS_INFO("TAKEOFF");
 		pub_cmd_takeoff.publish(empty_msg);
-		while(navData.state == 6);
+		// jjjwhile(navData.state == 6);
 		break;
 	case NymeriaConstants::LAND:
 		ROS_INFO("LAND");
 		pub_cmd_land.publish(empty_msg);
-		while(navData.state == 8);
+		// while(navData.state == 8);
 		break;
 	case NymeriaConstants::E_STOP:
 		ROS_INFO("E_STOP");
@@ -202,26 +200,7 @@ void Nymeria::triggerAction(int cmd){
 	move_msg.angular.y = 0;
 	move_msg.angular.z = 0;
 
-	modifyStateDrone(cmd);
-}
-
-void Nymeria::modifyStateDrone(int cmd){
-	// between 1 and 12
-	if(cmd >= 1 || cmd <= 12){
-
-		if(nh->hasParam("/nymeria_ardrone/stateDrone")){
-
-			NymeriaMutexDrone::lock();
-				nh->setParam("/nymeria_ardrone/stateDrone", cmd);
-			NymeriaMutexDrone::unlock();
-		
-		}
-		return;
-	}
-
-	// TODO add comment to explain the behaviour
-	if(cmd >= 1) 
-		validateStates(NymeriaConstants::CHECK);
+	lastCmd = cmd;
 }
 
 /**
@@ -240,12 +219,10 @@ void Nymeria::modifyStateDrone(int cmd){
  * @param cmd - incoming command: Either M_FORWARD (termination)
  * or CHECK (recursive function call to validateStates(CHECK).
  */
-void Nymeria::validateStates(int cmd){
+void Nymeria::validateStates(){
 	int tmpStateDrone;
 	int tmpStateObstacle;
-
-
-
+	
 	try{
 		/* Get current state of drone. */
 		if(nh->getParam("/nymeria_ardrone/stateDrone", stateDrone))
@@ -262,36 +239,18 @@ void Nymeria::validateStates(int cmd){
 	} catch(NymeriaExceptions& error){
 		/* Display error message. */
 		// TODO: wrap as ROS msg
-		//ROS_INFO(stderr,error.what().c_str());
 		fprintf(stderr,error.what());
 	}
 
-
-	/* Are the two states in conflict? (Case 1) */
-	if(   (tmpStateDrone == NymeriaConstants::M_FORWARD)
-	   && (tmpStateObstacle > 0)){
-		//ROS_INFO("cas 1");
+	/* moving forward and obstacle in front */
+	if (!isSafeAction(tmpStateDrone) && (tmpStateObstacle > 0)){
 		reactionRoutine();
-		// exit recursion/loop
-		return;
 	}
-	else
-		/* Command is being processed the first time. (Case 2) */
-		if (cmd > 0){
-			// ROS_INFO("cas 2");
-			triggerAction(cmd);
-		}
+	/* forward command */
+	else {
+		triggerAction(tmpStateDrone);
+	}
 
-	/*
-	 * (Case 3)
-	 * Recursive call --> Drone is moving forward.
-	 * Keep checking states.
-	 */
-	 
-	if(!isSafeAction(cmd)){
-		// ROS_INFO("cas 3");
-		validateStates(NymeriaConstants::CHECK);
-	}
 	return;
 }
 
@@ -306,6 +265,8 @@ void Nymeria::validateStates(int cmd){
 bool Nymeria::isSafeAction(int cmd){
 	for (int i = 0; i < sizeof(safeActions)/sizeof(*safeActions); i++){
 		if (safeActions[i] == cmd){
+			// ROS_INFO("cas 6");
+
 			return true;
 		}
 	}
@@ -326,19 +287,25 @@ void Nymeria::reactionRoutine(){
  * Command in order to move drone forward.
  */
 void Nymeria::moveForward(){
-	nymeriaRoutine(NymeriaConstants::M_FORWARD);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::M_FORWARD);
+	NymeriaMutexDrone::unlock();
 }
 /**
  * Command in order to move drone backward.
  */
 void Nymeria::moveBackward(){
-	nymeriaRoutine(NymeriaConstants::M_BACKWARD);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::M_BACKWARD);
+	NymeriaMutexDrone::unlock();
 }
 /**
  * Command in order to make drone rotate to the left.
  */
 void Nymeria::moveLeft(){
-	nymeriaRoutine(NymeriaConstants::M_LEFT);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::M_LEFT);
+	NymeriaMutexDrone::unlock();
 }
 
 /**
@@ -346,14 +313,18 @@ void Nymeria::moveLeft(){
  */
 
 void Nymeria::moveRight(){
-	nymeriaRoutine(NymeriaConstants::M_RIGHT);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::M_RIGHT);
+	NymeriaMutexDrone::unlock();
 }
 /**
  * Command in order to move drone upward,
  * i.e. increase altitude.
  */
 void Nymeria::moveUp(){
-	nymeriaRoutine(NymeriaConstants::M_UP);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::M_UP);
+	NymeriaMutexDrone::unlock();
 }
 
 /**
@@ -361,20 +332,26 @@ void Nymeria::moveUp(){
  * i.e. decrease altitude.
  */
 void Nymeria::moveDown(){
-	nymeriaRoutine(NymeriaConstants::M_DOWN);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::M_DOWN);
+	NymeriaMutexDrone::unlock();
 }
 /**
  * Command in order to move drone to the left.
  */
 void Nymeria::turnLeft(){
-	nymeriaRoutine(NymeriaConstants::T_LEFT);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::T_LEFT);
+	NymeriaMutexDrone::unlock();
 }
 
 /**
  * Command in order to move drone to the right.
  */
 void Nymeria::turnRight(){
-	nymeriaRoutine(NymeriaConstants::T_RIGHT);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::T_RIGHT);
+	NymeriaMutexDrone::unlock();
 }
 
 /**
@@ -382,20 +359,26 @@ void Nymeria::turnRight(){
  * i.e. stay at current position.
  */
 void Nymeria::stop(){
-	nymeriaRoutine(NymeriaConstants::STOP);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::STOP);
+	NymeriaMutexDrone::unlock();
 }
 /**
  * Command in order to make the drone take off.
  */
 void Nymeria::takeOff(){
-	nymeriaRoutine(NymeriaConstants::TAKEOFF);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::TAKEOFF);
+	NymeriaMutexDrone::unlock();
 }
 /**
  * Command in order to make the drone land,
  * i.e. underneath current position.
  */
 void Nymeria::land(){
-	nymeriaRoutine(NymeriaConstants::LAND);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::LAND);
+	NymeriaMutexDrone::unlock();
 }
 
 /**
@@ -403,21 +386,23 @@ void Nymeria::land(){
  * immediately land.
  */
 void Nymeria::emergencyStop(){
-	nymeriaRoutine(NymeriaConstants::E_STOP);
+	NymeriaMutexDrone::lock();
+	nh->setParam("stateDrone", NymeriaConstants::E_STOP);
+	NymeriaMutexDrone::unlock();
 }
 /**
  * Command in order to increase the maximum
  * speed by 10%.
  */
 void Nymeria::increaseMaxSpeed(){
-	nymeriaRoutine(NymeriaConstants::I_M_SPEED);
+	nh->setParam("stateDrone", NymeriaConstants::I_M_SPEED);
 }
 /**
  * Command in order to decrease the maximum
  * speed by 10%.
  */
 void Nymeria::decreaseMaxSpeed(){
-	nymeriaRoutine(NymeriaConstants::D_M_SPEED);
+	nh->setParam("stateDrone", NymeriaConstants::D_M_SPEED);
 }
 
 /**
@@ -425,7 +410,7 @@ void Nymeria::decreaseMaxSpeed(){
  * speed by 10%.
  */
 void Nymeria::increaseLinearSpeed(){
-	nymeriaRoutine(NymeriaConstants::I_L_SPEED);
+	nh->setParam("stateDrone", NymeriaConstants::I_L_SPEED);
 }
 
 /**
@@ -434,7 +419,7 @@ void Nymeria::increaseLinearSpeed(){
  */
 
 void Nymeria::decreaseLinearSpeed(){
-	nymeriaRoutine(NymeriaConstants::D_L_SPEED);
+	nh->setParam("stateDrone", NymeriaConstants::D_L_SPEED);
 }
 
 /**
@@ -442,7 +427,7 @@ void Nymeria::decreaseLinearSpeed(){
  * speed by 10%.
  */
 void Nymeria::increaseAngularSpeed(){
-	nymeriaRoutine(NymeriaConstants::I_A_SPEED);
+	nh->setParam("stateDrone", NymeriaConstants::I_A_SPEED);
 }
 
 /**
@@ -450,6 +435,6 @@ void Nymeria::increaseAngularSpeed(){
  * speed by 10%.
  */
 void Nymeria::decreaseAngularSpeed(){
-	nymeriaRoutine(NymeriaConstants::D_A_SPEED);
+	nh->setParam("stateDrone", NymeriaConstants::D_A_SPEED);
 }
 

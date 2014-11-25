@@ -39,7 +39,7 @@ class Nymeria
 		void increaseAngularSpeed();
 		void decreaseAngularSpeed();
 		
-
+		void validateStates();
 	private:
 		ros::NodeHandle * nh;
 		  /**Publishers, to send messages on topics**/
@@ -58,12 +58,13 @@ class Nymeria
 		int stateDrone;
 		double stateObstacle;
 
+		int lastCmd;
+
 		float speed;
 
-		int safeActions[17];
+		int safeActions[18];
 		bool isSafeAction(int cmd);
-		void validateStates(int cmd);
-		void modifyStateDrone(int cmd);
+		
 		void nymeriaRoutine(int cmd);
 		void triggerAction(int cmd);
 		void reactionRoutine();

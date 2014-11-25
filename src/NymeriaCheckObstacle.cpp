@@ -11,7 +11,7 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 	int stateObstacle;
 	try{
-		if(cfd < securityDist){
+		if((cfd < securityDist) && (cfd >= 0)){
 
 			NymeriaMutexObstacle::lock();
 				if(nh->hasParam("/nymeria_ardrone/stateObstacle")){

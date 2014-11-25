@@ -36,10 +36,12 @@ void SensorInterface::loop(ros::NodeHandle * n){
 	ros::Rate loop_rate(rate);
 
 	// 50 cm security distance
-	NymeriaCheckObstacle nco(n, 50);
+	NymeriaCheckObstacle nco(n, 80);
 
 	char message[10];
 	int nb_char;
+
+	Nymeria nym (n);
 
 	// UDPClient client("127.0.0.1", 7777);
 	UDPClient client("192.168.1.1", 7777);
@@ -57,6 +59,9 @@ void SensorInterface::loop(ros::NodeHandle * n){
 		// TODO : filter data (sometimes dist is negative)
 		if(message[0] > 0)
 			nco.inputCurFrontDist(message[0]);
+
+		// hand over commands to Nymeria
+		nym.validateStates();
 
 	 	loop_rate.sleep();
 	}

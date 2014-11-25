@@ -38,7 +38,7 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 
 	Nymeria nymeria(n);
 
-	int rate = 1;
+	int rate = 10;
 	ros::Rate loop_rate(rate);
 
 	// get the console in raw mode                                                              
