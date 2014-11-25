@@ -32,30 +32,32 @@ int main(int argc, char **argv)
 }
 
 void SensorInterface::loop(ros::NodeHandle * n){
-	int rate = 10;
+	int rate = 50;
 	ros::Rate loop_rate(rate);
 
-	NymeriaCheckObstacle nco(n, 20.0);
+	// 50 cm security distance
+	NymeriaCheckObstacle nco(n, 50);
 
-	char message[4];
+	char message[10];
 	int nb_char;
 
-	UDPClient client("127.0.0.1", 7777);
-	// UDPClient client("192.168.1.1", 7777);
+	// UDPClient client("127.0.0.1", 7777);
+	UDPClient client("192.168.1.1", 7777);
 	
-	while(client.send("go", 2) <= 0);
+	// start communication with server
+	while(client.send("ready", 10) <= 0);
 
 	while(ros::ok()){
 	
-	// 	// TODO receive
-		nb_char = client.recv(message, 0);
-		/*if(message[0] > 120){
-			message[0] = 128;
-		}*/		
+		nb_char = client.recv(message, 10);
+		
 		if(nb_char > 0)
-			printf("recu : %d\n", atoi(message));
+			printf("Recu : %d\n", message[0]);
 
-		nco.inputCurFrontDist(atoi(message));
+		// TODO : filter data (sometimes dist is negative)
+		if(message[0] > 0)
+			nco.inputCurFrontDist(message[0]);
+
 	 	loop_rate.sleep();
 	}
 	return;

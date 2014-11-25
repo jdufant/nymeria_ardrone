@@ -4,13 +4,14 @@
 #include <fcntl.h>   /* File control definitions */
 #include <errno.h>   /* Error number definitions */
 #include <termios.h> /* POSIX terminal control definitions */
-#include "udp_wrapper.hpp"
+#include "UDPWrapper.h"
 
 int main()
 {
     printf("Hello world\n");
 
-    int fd, sockfd; /* File descriptor for the port */
+  int fd, sockfd; /* File descriptor for the port */
+
     int n;
     int bytes, bsent;
     int i = 0;
@@ -93,7 +94,7 @@ buffer[i] = 0;
     bytes = read(fd, buffer, sizeof(buffer));
     printf("number of bytes read is %d\n", bytes);
 	
-        printf("%d-", buffer[0]);
+  printf("%d-", buffer[0]);
 	printf("%d-", buffer[1]);
 	printf("%d-", buffer[2]);
 	printf("%d-", buffer[3]);

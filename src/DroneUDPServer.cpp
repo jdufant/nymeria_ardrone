@@ -19,8 +19,8 @@ int main()
 
 	// Open UDP server //
 
-	UDPServer leServer("127.0.0.1", 7777);
-	// UDPServer leServer("192.168.1.1", 7777);
+	// UDPServer leServer("127.0.0.1", 7777);
+	UDPServer leServer("192.168.1.1", 7777);
 	
 	printf("connected\n");
 
