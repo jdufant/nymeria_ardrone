@@ -11,9 +11,9 @@
 int serialport_read_until(int fd, char* buf, char until)
 {
     char b[1];
-    int i=0;
+    int i=0; int n =0;
     do { 
-        int n = read(fd, b, 1);  // read a char at a time
+        n = read(fd, b, 1);  // read a char at a time
         if( n==-1) return -1;    // couldn't read
         if( n==0 ) {
             usleep( 2 * 1000 ); // wait 1 msec try again
@@ -23,22 +23,20 @@ int serialport_read_until(int fd, char* buf, char until)
     } while( b[0] != until);
 
     buf[i] = 0;  // null terminate the string
-    return 0;
+    return i;
 }
 
 int main()
 {
-	int bytes, bsent;
-	char msg[10];
+        int bsent, chread;
 	int fd, sockfd; /* File descriptor for the port */
 
-	char buffer[5];
+	char buffer[10];
 	char *bufptr;
 
 	struct termios options;
 
 	fd = open("/dev/ttyUSB0", O_RDONLY | O_NOCTTY | O_NDELAY);
-	//fd = open("/dev/tty.usbserial-14P53099", O_RDONLY | O_NOCTTY | O_NDELAY);
 	if (fd == -1) {
 		perror("open_port: Unable to open /dev/ttyUSB0");
 		printf("trying to open /dev/ttyUSB1\n");
@@ -58,8 +56,8 @@ int main()
 	tcgetattr( fd, &options );
 
 	/* Set Baud Rate */
-	cfsetispeed( &options, B9600 );
-	cfsetospeed( &options, B9600 );
+	cfsetispeed( &options, B115200 );
+	//cfsetospeed( &options, B115200 );
 
 	options.c_cflag |= ( CLOCAL | CREAD );
 	// Set the Charactor size
@@ -83,21 +81,20 @@ int main()
 		printf("tcsetattr succeed\n");
 
 	// Open UDP server //
-	// UDPServer server("127.0.0.1", 7777);
 	UDPServer server("192.168.1.1", 7777);
 
 	printf("Wait for client to be ready\n");
 	// wait for client to connect
-	//while(server.recv(msg, 10) == -1);
+	while(server.recv(buffer, 10) == -1);
 	
 	while (1) {
-		// Read from the port
-		//usleep(10000); // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
+	  // Read from the port
+	  // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
 
-		serialport_read_until(fd, buffer, 'x');
-		//bufptr = strcpy(bufptr, buffer);
-		printf("recu : %s\n", buffer);
-		//bsent = server.send(buffer, 3);
+	  chread = serialport_read_until(fd, buffer, 'x');
+	  //bufptr = strcpy(bufptr, buffer);
+	  printf("recu %d char : %s\n", chread, buffer);
+	  bsent = server.send(buffer, 10);
 		
 	}
 

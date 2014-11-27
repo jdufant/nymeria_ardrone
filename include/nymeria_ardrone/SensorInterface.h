@@ -5,6 +5,8 @@
 #include <nymeria_ardrone/NymeriaCheckObstacle.h>
 #define BUFFER_SIZE 10
 
+#define BUFFER_SIZE 10
+
 class SensorInterface
 {
 	public:
