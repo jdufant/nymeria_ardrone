@@ -36,7 +36,7 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 	bool dirty(false), flying(false), hovering(true);
 	std_msgs::Empty empty_msg;
 
-	Nymeria nymeria(n);
+	Nymeria nymeria(n, 100);
 
 	int rate = 10;
 	ros::Rate loop_rate(rate);

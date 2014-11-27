@@ -31,20 +31,35 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+void SensorInterface::cutBuffer(char* bufferIn, int size, int& valeur) {
+  
+  int i=0;
+  char tmp_buffer[BUFFER_SIZE];
+  while (i < size){
+    if (bufferIn[i] == 'x')
+      break;
+ 
+    else
+      tmp_buffer[i] = bufferIn[i];
+
+    i++;
+  }
+
+  valeur = atoi(tmp_buffer);
+}
+
 void SensorInterface::loop(ros::NodeHandle * n){
 	int rate = 50;
-	int value =0;
+	int value = 0;
+	int cutValue = 0;
 	ros::Rate loop_rate(rate);
 
-	// 50 cm security distance
+	// 80 cm security distance
 	NymeriaCheckObstacle nco(n, 80);
 
-	char message[10];
+	char message[BUFFER_SIZE];
 	int nb_char;
 
-	Nymeria nym (n);
-
-	// UDPClient client("127.0.0.1", 7777);
 	UDPClient client("192.168.1.1", 7777);
 	
 	// start communication with server
@@ -52,20 +67,16 @@ void SensorInterface::loop(ros::NodeHandle * n){
 
 	while(ros::ok()){
 	
-		nb_char = client.recv(message, 3);
+		nb_char = client.recv(message, BUFFER_SIZE);
+		cutBuffer(message, nb_char, cutValue);
 		
 		if(nb_char > 0)
-			printf("Recu : %s__", message);
+		  printf("Recu %d char : %d__", nb_char, cutValue);
 
 		printf("\n");
-		//value = message[3] || message[2] << 8 || message[1] << 16 || message[0] << 24;
-		value = atoi(message);
-		// TODO : filter data (sometimes dist is negative)
-		if(value > 0)
-			nco.inputCurFrontDist(value);
-
-		// hand over commands to Nymeria
-		nym.validateStates();
+		
+		if (cutValue >=0 && cutValue < 300)
+		  nco.inputCurFrontDist(cutValue);
 
 	 	loop_rate.sleep();
 	}

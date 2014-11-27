@@ -3,15 +3,16 @@
 
 #include "ros/ros.h"
 #include <nymeria_ardrone/NymeriaCheckObstacle.h>
+#define BUFFER_SIZE 10
 
 class SensorInterface
 {
-public:
+	public:
 		SensorInterface();
-		void loop(ros::NodeHandle * n);  
+		void loop(ros::NodeHandle * n);
 		ros::NodeHandle * getNH();
-
 	private:
+		void cutBuffer(char* bufferIn, int size, int& valeur);
 		ros::NodeHandle nh;
 };
 

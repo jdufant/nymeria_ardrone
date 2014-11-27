@@ -19,7 +19,7 @@ class Nymeria
 {
 	public:
 		Nymeria();
-		Nymeria(ros::NodeHandle * n);
+		Nymeria(ros::NodeHandle * n, int securityDist);
 		void moveForward();
 		void moveBackward();
 		void moveLeft();
@@ -52,23 +52,21 @@ class Nymeria
 		
 		std_msgs::Empty empty_msg;
 		geometry_msgs::Twist move_msg;
-
-		static float securityDist;
 		
-		int stateDrone;
-		double stateObstacle;
+		int command;
+		int stateObstacle;
 
 		int lastCmd;
-
 		float speed;
-
 		int safeActions[18];
+
 		bool isSafeAction(int cmd);
-		
+		void keepSecurityDistance();
 		void nymeriaRoutine(int cmd);
 		void triggerAction(int cmd);
 		void reactionRoutine();
-		void stateDroneCallback(const ardrone_autonomy::Navdata& data);
+		int getParameter(char * str);
+		// TODO : void stateDroneCallback(const ardrone_autonomy::Navdata& data);
 
 };
 
