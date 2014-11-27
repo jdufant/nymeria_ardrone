@@ -16,7 +16,7 @@ int serialport_read_until(int fd, char* buf, char until)
         int n = read(fd, b, 1);  // read a char at a time
         if( n==-1) return -1;    // couldn't read
         if( n==0 ) {
-            usleep( 2 * 1000 ); // wait 10 msec try again
+            usleep( 2 * 1000 ); // wait 1 msec try again
             continue;
         }
         buf[i] = b[0]; i++;
@@ -88,16 +88,16 @@ int main()
 
 	printf("Wait for client to be ready\n");
 	// wait for client to connect
-	while(server.recv(msg, 10) == -1);
+	//while(server.recv(msg, 10) == -1);
 	
 	while (1) {
 		// Read from the port
-		usleep(100000); // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
+		//usleep(10000); // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
 
 		serialport_read_until(fd, buffer, 'x');
 		//bufptr = strcpy(bufptr, buffer);
 		printf("recu : %s\n", buffer);
-		bsent = server.send(buffer, 3);
+		//bsent = server.send(buffer, 3);
 		
 	}
 

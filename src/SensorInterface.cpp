@@ -44,8 +44,8 @@ void SensorInterface::loop(ros::NodeHandle * n){
 
 	Nymeria nym (n);
 
-	UDPClient client("127.0.0.1", 7777);
-	// UDPClient client("192.168.1.1", 7777);
+	// UDPClient client("127.0.0.1", 7777);
+	UDPClient client("192.168.1.1", 7777);
 	
 	// start communication with server
 	while(client.send("ready", 10) <= 0);
