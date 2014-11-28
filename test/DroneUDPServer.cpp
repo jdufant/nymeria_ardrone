@@ -22,17 +22,16 @@ int serialport_read_until(int fd, char* buf, char until)
         buf[i] = b[0]; i++;
     } while( b[0] != until);
 
-    buf[i-1] = 0;  // null terminate the string
+    buf[i] = 0;  // null terminate the string
     return i;
 }
 
 int main()
 {
         int bsent, chread;
-	char msg[10];
 	int fd, sockfd; /* File descriptor for the port */
 
-	char buffer[5];
+	char buffer[10];
 	char *bufptr;
 
 	struct termios options;
@@ -86,7 +85,7 @@ int main()
 
 	printf("Wait for client to be ready\n");
 	// wait for client to connect
-	while(server.recv(msg, 10) == -1);
+	while(server.recv(buffer, 10) == -1);
 	
 	while (1) {
 	  // Read from the port
@@ -95,7 +94,7 @@ int main()
 	  chread = serialport_read_until(fd, buffer, 'x');
 	  //bufptr = strcpy(bufptr, buffer);
 	  printf("recu %d char : %s\n", chread, buffer);
-	  bsent = server.send(buffer, 3);
+	  bsent = server.send(buffer, 10);
 		
 	}
 
