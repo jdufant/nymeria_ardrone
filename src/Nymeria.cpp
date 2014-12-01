@@ -67,10 +67,7 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 		nh->setParam("nymeriaStateObstacle", -1);
 	NymeriaMutexObstacle::unlock();
 
-	int test = getParameter("/nymeriaStateObstacle");
-	printf("test : %d\n", test);
-/*
-	if(nh->getParam("/securityDist", tmpSecurityDist)){
+	if(nh->getParam("/nymeriaSecurityDist", tmpSecurityDist)){
 		if(tmpSecurityDist != securityDist){
 			ROS_WARN("Given security distance does not match security distance given in NymeriaCheckObstacle.");
 			ROS_WARN("First security distance given will be considered.");
@@ -78,10 +75,9 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 	}
 	else {
 		// NymeriaMutexObstacle::lock();
-		nh->setParam("securityDist", securityDist);
+		nh->setParam("nymeriaSecurityDis", securityDist);
 		// NymeriaMutexObstacle::unlock();
 	}
-	*/
 
 	pub_cmd_takeoff = nh->advertise<std_msgs::Empty>("ardrone/takeoff", 10);
 	pub_cmd_land = nh->advertise<std_msgs::Empty>("ardrone/land", 10);
@@ -244,7 +240,8 @@ void Nymeria::validateStates(){
 	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
 
 	/* move forward and obstacle in front */
-	if (!isSafeAction(tmpCommand) && (tmpStateObstacle > 0)){
+	if ((!isSafeAction(tmpCommand))
+		&& (tmpStateObstacle != -1)){
 		reactionRoutine();
 	}
 	/* forward command */
@@ -289,7 +286,8 @@ void Nymeria::keepSecurityDistance(){
 		tmpSecurityDist = getParameter("/nymeriaSecurityDist");
 		tmpStateObstacle = getParameter("/nymeriaStateObstacle");
 
-	} while(tmpStateObstacle < tmpSecurityDist);
+	} while((tmpStateObstacle < tmpSecurityDist)
+		 && (tmpStateObstacle != -1));
 		triggerAction(NymeriaConstants::STOP);
 
 
@@ -303,8 +301,11 @@ void Nymeria::reactionRoutine(){
 	int tmpCommand;
 	int tmpStateObstacle;
 	
+	// TODO : why is that here 
+	/*
 	tmpCommand = getParameter("/nymeriaCommand");
 	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
+	*/
 
 	ROS_INFO("reaction routine");
 	triggerAction(NymeriaConstants::STOP);

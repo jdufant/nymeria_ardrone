@@ -7,6 +7,10 @@
 #include <fcntl.h>   /* File control definitions */
 #include <errno.h>   /* Error number definitions */
 #include <termios.h> /* POSIX terminal control definitions */
+#include <stdlib.h>
+
+
+#define BUFFER_SIZE 4
 
 int serialport_read_until(int fd, char* buf, char until)
 {
@@ -31,8 +35,11 @@ int main()
         int bsent, chread;
 	int fd, sockfd; /* File descriptor for the port */
 
-	char buffer[10];
+	char buffer[BUFFER_SIZE];
 	char *bufptr;
+
+	char msg[4];
+	int value, tmp_value = 0;
 
 	struct termios options;
 
@@ -85,16 +92,29 @@ int main()
 
 	printf("Wait for client to be ready\n");
 	// wait for client to connect
-	while(server.recv(buffer, 10) == -1);
+	while(server.recv(buffer, BUFFER_SIZE) == -1);
 	
 	while (1) {
 	  // Read from the port
 	  // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
 
 	  chread = serialport_read_until(fd, buffer, 'x');
+	  msg[2] = buffer[2];
+	  msg[1] = buffer[1];
+	  msg[0] = buffer[0];
+	  msg[3] = '\0';
+
+	  value = atoi(msg);
 	  //bufptr = strcpy(bufptr, buffer);
-	  printf("recu %d char : %s\n", chread, buffer);
-	  bsent = server.send(buffer, 10);
+	  printf("recu %d char : %s\n", chread, msg);
+	  if(value != tmp_value){
+	  	bsent = server.send(msg, BUFFER_SIZE);
+	  	usleep(1000*10);
+	  }
+
+	  tmp_value = value;
+
+	  tcflush(fd, TCIOFLUSH);
 		
 	}
 

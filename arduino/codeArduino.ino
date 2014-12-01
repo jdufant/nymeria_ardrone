@@ -1,17 +1,18 @@
 const int pingPin = 11;
+long duration;
+int cm;
+int tmp_cm;
+uint8_t first, second, third, last;
 
 void setup() {
   // initialize serial communication:
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop()
 {
   // establish variables for duration of the ping, 
   // and the distance result in inches and centimeters:
-  long duration;
-  int cm;
-  uint8_t first, second, third, last;
 
   // The PING))) is triggered intby a HIGH pulse of 2 or more microseconds.
   // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
@@ -30,10 +31,20 @@ void loop()
 
   // convert the time into a distance
   cm = microsecondsToCentimeters(duration);
-  String dist = String(cm);
-
-  Serial.print(dist);
-  Serial.print('x');
+  Serial.flush();
+  if(cm != tmp_cm){
+    String dist = String(cm);
+    
+   
+    if(cm < 10)
+      Serial.print('0');
+    if(cm < 100)
+      Serial.print('0');
+  
+    Serial.print(dist); // always print 3 characters
+    Serial.print('x'); // print 'x'
+  }
+  tmp_cm = cm;
   delay(10);
 }
 

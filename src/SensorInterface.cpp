@@ -14,6 +14,8 @@
 #include <ardrone_autonomy/Navdata.h>
 #include <nymeria_ardrone/Nymeria.h>
 
+#define BUFFER_SIZE 4
+
 ros::NodeHandle * SensorInterface::getNH(){
 	return &nh;
 }
@@ -63,7 +65,7 @@ void SensorInterface::loop(ros::NodeHandle * n){
 	UDPClient client("192.168.1.1", 7777);
 	
 	// start communication with server
-	while(client.send("ready", 10) <= 0);
+	while(client.send("go", BUFFER_SIZE) <= 0);
 
 	while(ros::ok()){
 	

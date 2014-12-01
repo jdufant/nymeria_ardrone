@@ -9,7 +9,7 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 	nh = n;
 	this->securityDist = securityDist;
 
-	if(nh->getParam("/nymeria_ardrone/securityDist", tmpSecurityDist)){
+	if(nh->getParam("/nymeriaSecurityDist", tmpSecurityDist)){
 		if(tmpSecurityDist != securityDist){
 			ROS_WARN("Given security distance does not match security distance given in Nymeria.");
 			ROS_WARN("First security distance given will be considered.");
@@ -18,7 +18,7 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 	}
 	else {
 		// NymeriaMutexObstacle::lock();
-		nh->setParam("/nymeria_ardrone/securityDist", securityDist);
+		nh->setParam("/nymeriaSecurityDist", securityDist);
 		// NymeriaMutexObstacle::unlock();
 	}
 }
@@ -29,20 +29,20 @@ void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 		if((cfd < securityDist) && (cfd >= 0)){
 
 			NymeriaMutexObstacle::lock();
-				if(nh->hasParam("/nymeria_ardrone/stateObstacle")){
+				if(nh->hasParam("/nymeriaStateObstacle")){
 
-					nh->setParam("/nymeria_ardrone/stateObstacle", cfd);
+					nh->setParam("/nymeriaStateObstacle", cfd);
 				}
 				else throw NymeriaParamExc();
 			NymeriaMutexObstacle::unlock();
 		}
 		else {
 
-			if(nh->getParam("/nymeria_ardrone/stateObstacle", stateObstacle)){
+			if(nh->getParam("/nymeriaStateObstacle", stateObstacle)){
 
 				if(stateObstacle > 0){
 					NymeriaMutexObstacle::lock();
-						nh->setParam("/nymeria_ardrone/stateObstacle", -1);
+						nh->setParam("/nymeriaStateObstacle", -1);
 					NymeriaMutexObstacle::unlock();
 				}
 			}
@@ -63,9 +63,9 @@ int NymeriaCheckObstacle::getSecurityDist(){
 void NymeriaCheckObstacle::setSecurityDist(int sd){
 	securityDist = sd;
 	try {
-		if(nh->hasParam("/nymeria_ardrone/securityDist")){
+		if(nh->hasParam("/nymeriaSecurityDist")){
 			// NymeriaMutexObstacle::lock();
-			nh->setParam("/nymeria_ardrone/securityDist", securityDist);
+			nh->setParam("/nymeriaSecurityDist", securityDist);
 			// NymeriaMutexObstacle::unlock();
 		}
 		else throw NymeriaParamExc();
