@@ -110,6 +110,7 @@ set(LIBRARY_SOURCES
 	src/UDPWrapper.cpp
 	src/exception/NymeriaExceptions.cpp
 	src/exception/NymeriaParamExc.cpp
+	src/exception/NymeriaInvalidSecurityDistance.cpp
 )
 
 add_library(
