@@ -103,8 +103,9 @@ include_directories(
 set(LIBRARY_SOURCES
 	src/Nymeria.cpp
 	src/NymeriaMutex.cpp
-	src/NymeriaMutexDrone.cpp
+	src/NymeriaMutexCommand.cpp
 	src/NymeriaMutexObstacle.cpp
+	src/NymeriaMutexSecurityDistance.cpp
 	src/NymeriaCheckObstacle.cpp
 	src/UDPWrapper.cpp
 	src/exception/NymeriaExceptions.cpp
