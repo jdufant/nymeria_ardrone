@@ -1,5 +1,9 @@
 #include <nymeria_ardrone/Nymeria.h>
 #include <nymeria_ardrone/NymeriaParamExc.h>
+#include <nymeria_ardrone/NymeriaInvalidSecurityDistance.h>
+#include <nymeria_ardrone/NymeriaMutexCommand.h>
+#include <nymeria_ardrone/NymeriaMutexObstacle.h>
+#include <nymeria_ardrone/NymeriaMutexSecurityDistance.h>
 #include <string.h>
 
 /**
@@ -59,24 +63,34 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 
 	/* Set parameters shared with all ROS nodes. */ 
 	
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 		nh->setParam("nymeriaCommand", 0);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 
 	NymeriaMutexObstacle::lock();
 		nh->setParam("nymeriaStateObstacle", -1);
 	NymeriaMutexObstacle::unlock();
 
-	if(nh->getParam("/nymeriaSecurityDist", tmpSecurityDist)){
-		if(tmpSecurityDist != securityDist){
-			ROS_WARN("Given security distance does not match security distance given in NymeriaCheckObstacle.");
-			ROS_WARN("First security distance given will be considered.");
+	try {
+		if(securityDist >= 0){
+
+			tmpSecurityDist = getParameter("/nymeriaSecurityDist");
+			if(tmpSecurityDist != securityDist){
+				ROS_WARN("Given security distance does not match security distance given in NymeriaCheckObstacle.");
+				ROS_WARN("First security distance given will be considered.");
+			}
+			else {
+				NymeriaMutexSecurityDistance::lock();
+				nh->setParam("nymeriaSecurityDist", securityDist);
+				NymeriaMutexSecurityDistance::unlock();
+			}
 		}
+		else
+			throw NymeriaInvalidSecurityDistance();
 	}
-	else {
-		// NymeriaMutexObstacle::lock();
-		nh->setParam("nymeriaSecurityDis", securityDist);
-		// NymeriaMutexObstacle::unlock();
+	catch(NymeriaExceptions& error){
+		/* Display error message. */
+		fprintf(stderr,error.what());
 	}
 
 	pub_cmd_takeoff = nh->advertise<std_msgs::Empty>("ardrone/takeoff", 10);
@@ -234,14 +248,15 @@ void Nymeria::triggerAction(int cmd){
  */
 void Nymeria::validateStates(){
 	int tmpCommand;
+	int tmpSecurityDist;
 	int tmpStateObstacle;
 	
 	tmpCommand = getParameter("/nymeriaCommand");
+	tmpSecurityDist = getParameter("/nymeriaSecurityDist");
 	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
 
 	/* move forward and obstacle in front */
-	if ((!isSafeAction(tmpCommand))
-		&& (tmpStateObstacle != -1)){
+	if (!isSafeAction(tmpCommand) && hasObstacle()){
 		reactionRoutine();
 	}
 	/* forward command */
@@ -272,25 +287,33 @@ bool Nymeria::isSafeAction(int cmd){
 }
 
 void Nymeria::keepSecurityDistance(){
+	int tmpCommand;
+
+	tmpCommand = getParameter("/nymeriaCommand");
+
+	if(hasObstacle())
+		triggerAction(NymeriaConstants::M_BACKWARD);
+	
+	do{
+		tmpCommand = getParameter("/nymeriaCommand");
+		if (	(tmpCommand != lastCmd)
+		    &&	(isSafeAction(tmpCommand)))
+			break;
+
+	} while(hasObstacle());
+	
+	triggerAction(NymeriaConstants::STOP);
+}
+
+bool Nymeria::hasObstacle(){
 	int tmpStateObstacle;
 	int tmpSecurityDist;
 
 	tmpSecurityDist = getParameter("/nymeriaSecurityDist");
 	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
 
-	if(tmpStateObstacle < tmpSecurityDist)
-		triggerAction(NymeriaConstants::M_BACKWARD);
-	
-	do{
-
-		tmpSecurityDist = getParameter("/nymeriaSecurityDist");
-		tmpStateObstacle = getParameter("/nymeriaStateObstacle");
-
-	} while((tmpStateObstacle < tmpSecurityDist)
-		 && (tmpStateObstacle != -1));
-		triggerAction(NymeriaConstants::STOP);
-
-
+	return ((tmpStateObstacle < tmpSecurityDist)
+		&& (tmpStateObstacle >= 0));	
 }
 
 /** TODO
@@ -298,15 +321,6 @@ void Nymeria::keepSecurityDistance(){
  * then bypass it, i.e. navigate around it.
  */
 void Nymeria::reactionRoutine(){
-	int tmpCommand;
-	int tmpStateObstacle;
-	
-	// TODO : why is that here 
-	/*
-	tmpCommand = getParameter("/nymeriaCommand");
-	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
-	*/
-
 	ROS_INFO("reaction routine");
 	triggerAction(NymeriaConstants::STOP);
 	keepSecurityDistance();
@@ -333,25 +347,25 @@ int Nymeria::getParameter(char * str){
  * Command in order to move drone forward.
  */
 void Nymeria::moveForward(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::M_FORWARD);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 /**
  * Command in order to move drone backward.
  */
 void Nymeria::moveBackward(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::M_BACKWARD);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 /**
  * Command in order to make drone rotate to the left.
  */
 void Nymeria::moveLeft(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::M_LEFT);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 
 /**
@@ -359,18 +373,18 @@ void Nymeria::moveLeft(){
  */
 
 void Nymeria::moveRight(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::M_RIGHT);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 /**
  * Command in order to move drone upward,
  * i.e. increase altitude.
  */
 void Nymeria::moveUp(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::M_UP);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 
 /**
@@ -378,26 +392,26 @@ void Nymeria::moveUp(){
  * i.e. decrease altitude.
  */
 void Nymeria::moveDown(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::M_DOWN);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 /**
  * Command in order to move drone to the left.
  */
 void Nymeria::turnLeft(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::T_LEFT);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 
 /**
  * Command in order to move drone to the right.
  */
 void Nymeria::turnRight(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::T_RIGHT);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 
 /**
@@ -405,26 +419,26 @@ void Nymeria::turnRight(){
  * i.e. stay at current position.
  */
 void Nymeria::stop(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::STOP);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 /**
  * Command in order to make the drone take off.
  */
 void Nymeria::takeOff(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::TAKEOFF);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 /**
  * Command in order to make the drone land,
  * i.e. underneath current position.
  */
 void Nymeria::land(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::LAND);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 
 /**
@@ -432,9 +446,9 @@ void Nymeria::land(){
  * immediately land.
  */
 void Nymeria::emergencyStop(){
-	NymeriaMutexDrone::lock();
+	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::E_STOP);
-	NymeriaMutexDrone::unlock();
+	NymeriaMutexCommand::unlock();
 }
 /**
  * Command in order to increase the maximum

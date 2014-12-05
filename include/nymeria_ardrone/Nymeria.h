@@ -8,8 +8,7 @@
 #include "std_msgs/String.h"
 #include <ardrone_autonomy/Navdata.h>
 #include <nymeria_ardrone/NymeriaConstants.h>
-#include <nymeria_ardrone/NymeriaMutexDrone.h>
-#include <nymeria_ardrone/NymeriaMutexObstacle.h>
+#include <nymeria_ardrone/Controller.h>
 
 /**
  * Declaration of the class Nymeria, that declares all functionalities
@@ -17,6 +16,7 @@
  */
 class Nymeria
 {
+	friend class Controller;
 	public:
 		Nymeria();
 		Nymeria(ros::NodeHandle * n, int securityDist);
@@ -39,7 +39,6 @@ class Nymeria
 		void increaseAngularSpeed();
 		void decreaseAngularSpeed();
 		
-		void validateStates();
 	private:
 		ros::NodeHandle * nh;
 		  /**Publishers, to send messages on topics**/
@@ -66,6 +65,8 @@ class Nymeria
 		void triggerAction(int cmd);
 		void reactionRoutine();
 		int getParameter(char * str);
+		bool hasObstacle();
+		void validateStates();
 		// TODO : void stateDroneCallback(const ardrone_autonomy::Navdata& data);
 
 };

@@ -1,6 +1,7 @@
 #include <nymeria_ardrone/NymeriaCheckObstacle.h>
 #include <nymeria_ardrone/NymeriaParamExc.h>
 #include <nymeria_ardrone/NymeriaMutexObstacle.h>
+#include <nymeria_ardrone/NymeriaMutexSecurityDistance.h>
 
 NymeriaCheckObstacle::NymeriaCheckObstacle(){}
 NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist){
@@ -17,9 +18,9 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 		}
 	}
 	else {
-		// NymeriaMutexObstacle::lock();
+		NymeriaMutexSecurityDistance::lock();
 		nh->setParam("/nymeriaSecurityDist", securityDist);
-		// NymeriaMutexObstacle::unlock();
+		NymeriaMutexSecurityDistance::unlock();
 	}
 }
 
@@ -64,9 +65,9 @@ void NymeriaCheckObstacle::setSecurityDist(int sd){
 	securityDist = sd;
 	try {
 		if(nh->hasParam("/nymeriaSecurityDist")){
-			// NymeriaMutexObstacle::lock();
+			NymeriaMutexSecurityDistance::lock();
 			nh->setParam("/nymeriaSecurityDist", securityDist);
-			// NymeriaMutexObstacle::unlock();
+			NymeriaMutexSecurityDistance::unlock();
 		}
 		else throw NymeriaParamExc();
 
