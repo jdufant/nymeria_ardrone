@@ -42,6 +42,8 @@ int serialport_read_until(int fd, char* buf, char until)
 
 int main()
 {
+  char tab_moy[MOY_SIZE];
+  int cpt_decim = 0;
         int bsent, chread;
 	int fd, sockfd; /* File descriptor for the port */
 
@@ -97,11 +99,11 @@ int main()
 		printf("tcsetattr succeed\nPERROQUET\n");
 
 	// Open UDP server //
-	//UDPServer server("192.168.1.1", 7777);
+	UDPServer server("192.168.1.1", 7777);
 
 	printf("Wait for client to be ready\n");
 	// wait for client to connect
-	//while(server.recv(buffer, BUFFER_SIZE) == -1);
+	while(server.recv(buffer, BUFFER_SIZE) == -1);
 	
 	while (1) {
 
@@ -109,6 +111,7 @@ int main()
 	  // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
 
 	  chread = serialport_read_until(fd, buffer, 'x');
+
 	  /*msg[3] = '\0';
 	  msg[2] = buffer[2];
 	  msg[1] = buffer[1];
@@ -118,15 +121,13 @@ int main()
 	  
 	  if (chread > 0) {
 	    printf("recu : %s\n", buffer);
-	    //bsent = server.send(buffer, 4);
+	    cpt_decim ++;
 	  }
 
-		//	usleep(1000*10);
-		//}
-
-		//tmp_value = value;
-
-	  //tcflush(fd, TCIOFLUSH);
+	  if (cpt_decim >=10){
+	    bsent = server.send(buffer, 4);
+	    cpt_decim = 0;
+	  }
 		
 	}
 
