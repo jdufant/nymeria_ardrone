@@ -57,7 +57,6 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 	safeActions[14] = NymeriaConstants::D_L_SPEED;
 	safeActions[15] = NymeriaConstants::I_A_SPEED;
 	safeActions[16] = NymeriaConstants::D_A_SPEED;
-	safeActions[17] = NymeriaConstants::CHECK;
 
 	nh = n;
 
@@ -120,10 +119,10 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
  * Forward command to drone.
  * @param cmd - incoming command.
  */
-void Nymeria::triggerAction(int cmd){
+int Nymeria::triggerAction(int cmd){
 
 	if(cmd == lastCmd)
-		return;
+		return cmd;
 
 	switch(cmd){
 	case NymeriaConstants::M_FORWARD:
@@ -229,6 +228,8 @@ void Nymeria::triggerAction(int cmd){
 	move_msg.angular.z = 0;
 
 	lastCmd = cmd;
+
+	return cmd;
 }
 
 /**
@@ -247,7 +248,7 @@ void Nymeria::triggerAction(int cmd){
  * @param cmd - incoming command: Either M_FORWARD (termination)
  * or CHECK (recursive function call to validateStates(CHECK).
  */
-void Nymeria::validateStates(){
+int Nymeria::validateStates(){
 	int tmpCommand;
 	int tmpSecurityDist;
 	int tmpStateObstacle;
@@ -259,13 +260,12 @@ void Nymeria::validateStates(){
 	/* move forward and obstacle in front */
 	if (!isSafeAction(tmpCommand) && hasObstacle()){
 		reactionRoutine();
+		return NymeriaConstants::O_FRONT;
 	}
 	/* forward command */
 	else {
-		triggerAction(tmpCommand);
+		return (triggerAction(tmpCommand));
 	}
-
-	return;
 }
 
 /**

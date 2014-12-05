@@ -31,6 +31,8 @@ int main(int argc, char **argv)
 
 void Controller::loop(ros::NodeHandle * n){
 	int rate = 50;
+	int errorCode;
+	int lastErrorCode = 0;
 	ros::Rate loop_rate(rate);
 
 	Nymeria nym (n, 80);
@@ -38,7 +40,24 @@ void Controller::loop(ros::NodeHandle * n){
 	while(ros::ok()){
 
 		// hand over commands to Nymeria
-		nym.validateStates();
+		errorCode = nym.validateStates();
+
+		switch (errorCode) {
+			case 0 :
+				if(errorCode != lastErrorCode) printf("init\n");
+				break;
+			case -1 :
+				if(errorCode != lastErrorCode) printf("obstacle\n");
+				break;
+			case -2 :
+				if(errorCode != lastErrorCode) printf("avoidance routine\n");
+				break;
+			default :
+				if(errorCode != lastErrorCode) printf("code : %d\n", errorCode);
+				break;
+		}
+
+		lastErrorCode = errorCode;
 
 	 	loop_rate.sleep();
 	}

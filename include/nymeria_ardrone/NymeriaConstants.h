@@ -9,7 +9,8 @@
 class NymeriaConstants{
 	public:
 		NymeriaConstants();
-		static const int CHECK = 0;
+		static const int O_FRONT = -1;
+		
 		static const int M_FORWARD = 1;
 		static const int M_BACKWARD = 2;
 		static const int M_LEFT = 3;
@@ -28,8 +29,6 @@ class NymeriaConstants{
 		static const int D_L_SPEED = 16;
 		static const int I_A_SPEED = 17;
 		static const int D_A_SPEED = 18;
-		static const int NO_OBSTACLE = 20;
-		static const int O_FRONT = 21;		
 };
 
 #endif

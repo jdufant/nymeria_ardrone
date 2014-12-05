@@ -1,5 +1,6 @@
 #include <nymeria_ardrone/NymeriaCheckObstacle.h>
 #include <nymeria_ardrone/NymeriaParamExc.h>
+#include <nymeria_ardrone/NymeriaInvalidSecurityDistance.h>
 #include <nymeria_ardrone/NymeriaMutexObstacle.h>
 #include <nymeria_ardrone/NymeriaMutexSecurityDistance.h>
 
@@ -10,17 +11,27 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 	nh = n;
 	this->securityDist = securityDist;
 
-	if(nh->getParam("/nymeriaSecurityDist", tmpSecurityDist)){
-		if(tmpSecurityDist != securityDist){
-			ROS_WARN("Given security distance does not match security distance given in Nymeria.");
-			ROS_WARN("First security distance given will be considered.");
-			securityDist = tmpSecurityDist;
+	try {
+		if(securityDist >= 0){
+			if(nh->hasParam("/nymeriaSecurityDist") && (nh->getParam("/nymeriaSecurityDist", tmpSecurityDist))){
+				
+				if(tmpSecurityDist != securityDist){
+					ROS_WARN("Given security distance does not match security distance given in Nymeria.");
+					ROS_WARN("First security distance given will be considered.");
+				}
+			}
+			else {
+				NymeriaMutexSecurityDistance::lock();
+				nh->setParam("nymeriaSecurityDist", securityDist);
+				NymeriaMutexSecurityDistance::unlock();
+			}
 		}
+		else
+			throw NymeriaInvalidSecurityDistance();
 	}
-	else {
-		NymeriaMutexSecurityDistance::lock();
-		nh->setParam("/nymeriaSecurityDist", securityDist);
-		NymeriaMutexSecurityDistance::unlock();
+	catch(NymeriaExceptions& error){
+		/* Display error message. */
+		fprintf(stderr,error.what());
 	}
 }
 
