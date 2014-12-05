@@ -8,9 +8,13 @@
 #include <errno.h>   /* Error number definitions */
 #include <termios.h> /* POSIX terminal control definitions */
 #include <stdlib.h>
+#include <sstream>
 
 
 #define BUFFER_SIZE 8
+#define NB_VAL 10
+
+int traitTab(int* tab, int size);
 
 int serialport_read_until(int fd, char* buf, char until)
 {
@@ -40,19 +44,46 @@ int serialport_read_until(int fd, char* buf, char until)
     return chread;
 }
 
+void setSerialOptions( struct termios& options)
+{
+  	/* Set Baud Rate */
+	cfsetispeed( &options, B115200 );
+	//cfsetospeed( &options, B115200 );
+
+	    options.c_cflag |= ( CLOCAL | CREAD );
+	    // Set the Charactor size
+	    options.c_cflag &= ~CSIZE; /* Mask the character size bits */
+	    options.c_cflag |= CS8;    /* Select 8 data bits */
+	    // Set parity - No Parity (8N1)
+	    options.c_cflag &= ~PARENB;
+	    options.c_cflag &= ~CSTOPB;
+	    // Disable Hardware flowcontrol
+	    //options.c_cflag &= ~CNEW_RTSCTS;  //-- not supported
+	    // Enable Raw Input
+	    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+	    // Disable Software Flow control
+	    options.c_iflag &= ~(IXON | IXOFF | IXANY);
+	    // Chose raw (not processed) output
+	    //options.c_oflag &= ~OPOST;
+    }
+
+
 int main()
 {
-  char tab_moy[MOY_SIZE];
-  int cpt_decim = 0;
-        int bsent, chread;
-	int fd, sockfd; /* File descriptor for the port */
+  std::stringstream ss;
+  std::string tmpStr;
+  int cpt_tab = 0;
+  int cpt_boucle = 0;
 
-	char buffer[BUFFER_SIZE];
+  int bsent, chread;
+  int fd, sockfd; /* File descriptor for the port */
 
-	//char msg[4];
-	int value, tmp_value = 0;
+  int tabVal[NB_VAL];
+  char readBuffer[BUFFER_SIZE];
+  //const char sendBuffer[4];
+  int value, tmp_value = 0;
 
-	struct termios options;
+  struct termios options;
 
 	fd = open("/dev/ttyUSB0", O_RDONLY | O_NOCTTY | O_NDELAY);
 	if (fd == -1) {
@@ -73,25 +104,7 @@ int main()
 
 	tcgetattr( fd, &options );
 
-	/* Set Baud Rate */
-	cfsetispeed( &options, B115200 );
-	//cfsetospeed( &options, B115200 );
-
-	options.c_cflag |= ( CLOCAL | CREAD );
-	// Set the Charactor size
-	options.c_cflag &= ~CSIZE; /* Mask the character size bits */
-	options.c_cflag |= CS8;    /* Select 8 data bits */
-	// Set parity - No Parity (8N1)
-	options.c_cflag &= ~PARENB;
-	options.c_cflag &= ~CSTOPB;
-	// Disable Hardware flowcontrol
-	//options.c_cflag &= ~CNEW_RTSCTS;  //-- not supported
-	// Enable Raw Input
-	options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-	// Disable Software Flow control
-	options.c_iflag &= ~(IXON | IXOFF | IXANY);
-	// Chose raw (not processed) output
-	//options.c_oflag &= ~OPOST;
+	setSerialOptions(options);
 
 	if ( tcsetattr( fd, TCSANOW, &options ) == -1 )
 		perror("Error with tcsetattr");
@@ -103,14 +116,14 @@ int main()
 
 	printf("Wait for client to be ready\n");
 	// wait for client to connect
-	while(server.recv(buffer, BUFFER_SIZE) == -1);
+	while(server.recv(readBuffer, BUFFER_SIZE) == -1);
 	
 	while (1) {
 
 	  // Read from the port
 	  // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
 
-	  chread = serialport_read_until(fd, buffer, 'x');
+	  chread = serialport_read_until(fd, readBuffer, 'x');
 
 	  /*msg[3] = '\0';
 	  msg[2] = buffer[2];
@@ -120,16 +133,50 @@ int main()
 	  value = atoi(msg);*/
 	  
 	  if (chread > 0) {
-	    printf("recu : %s\n", buffer);
-	    cpt_decim ++;
+	    printf("recu : %s\n", readBuffer);
+
+	    if((tabVal[cpt_boucle] = atoi(readBuffer)) < 400){
+	      cpt_tab ++;
+	    }
+
+	    cpt_boucle++;
 	  }
 
-	  if (cpt_decim >=10){
-	    bsent = server.send(buffer, 4);
-	    cpt_decim = 0;
+	  if (cpt_boucle >=10){
+	    value = traitTab(tabVal, cpt_tab);
+	    ss << value;
+	    tmpStr = ss.str();
+	    const char* sendBuffer = tmpStr.c_str();
+	    bsent = server.send(sendBuffer, 4);
+	    cpt_boucle = 0;
 	  }
 		
 	}
 
 	close(fd);
+}
+
+int traitTab(int* tab, int size)
+{
+  int total = 0;
+  int moyenne = 0;
+  const int ecart = 20;
+  
+  for(int i =0; i < size; i++)
+    total += tab[i];
+
+  moyenne = total/size;
+
+  for(int i =0; i < size; i++){
+    if (abs(tab[i] - moyenne) >= 20)
+      for (int j = i; j < size-1; j++)
+	tab[j] = tab[j+1];
+    size--;
+  }
+  
+  total = 0;
+  for(int i =0; i < size; i++)
+    total += tab[i];
+
+  return total/size;
 }
