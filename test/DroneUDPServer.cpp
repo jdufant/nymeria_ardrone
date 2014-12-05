@@ -10,24 +10,34 @@
 #include <stdlib.h>
 
 
-#define BUFFER_SIZE 4
+#define BUFFER_SIZE 8
 
 int serialport_read_until(int fd, char* buf, char until)
 {
     char b[1];
-    int i=0; int n =0;
+    int i=0; int n=0; int chread=0;
+    
+    //printf("read_until\n");
     do { 
         n = read(fd, b, 1);  // read a char at a time
         if( n==-1) return -1;    // couldn't read
         if( n==0 ) {
-            usleep( 2 * 1000 ); // wait 1 msec try again
-            continue;
+	  //usleep(5* 1000 ); // wait 1 msec try again
+	  continue;
         }
-        buf[i] = b[0]; i++;
-    } while( b[0] != until);
+        buf[i] = b[0]; 
+	i++;
 
-    buf[i] = 0;  // null terminate the string
-    return i;
+    } while( b[0] != until);
+    
+    chread = i-1;
+
+    for (int j = i; i < BUFFER_SIZE; i++)
+      {
+	buf[i] = '\0';  // null terminate the string
+      }
+
+    return chread;
 }
 
 int main()
@@ -36,9 +46,8 @@ int main()
 	int fd, sockfd; /* File descriptor for the port */
 
 	char buffer[BUFFER_SIZE];
-	char *bufptr;
 
-	char msg[4];
+	//char msg[4];
 	int value, tmp_value = 0;
 
 	struct termios options;
@@ -85,36 +94,39 @@ int main()
 	if ( tcsetattr( fd, TCSANOW, &options ) == -1 )
 		perror("Error with tcsetattr");
 	else
-		printf("tcsetattr succeed\n");
+		printf("tcsetattr succeed\nPERROQUET\n");
 
 	// Open UDP server //
-	UDPServer server("192.168.1.1", 7777);
+	//UDPServer server("192.168.1.1", 7777);
 
 	printf("Wait for client to be ready\n");
 	// wait for client to connect
-	while(server.recv(buffer, BUFFER_SIZE) == -1);
+	//while(server.recv(buffer, BUFFER_SIZE) == -1);
 	
 	while (1) {
+
 	  // Read from the port
 	  // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
 
 	  chread = serialport_read_until(fd, buffer, 'x');
+	  /*msg[3] = '\0';
 	  msg[2] = buffer[2];
 	  msg[1] = buffer[1];
 	  msg[0] = buffer[0];
-	  msg[3] = '\0';
-
-	  value = atoi(msg);
-	  //bufptr = strcpy(bufptr, buffer);
-	  printf("recu %d char : %s\n", chread, msg);
-	  if(value != tmp_value){
-	  	bsent = server.send(msg, BUFFER_SIZE);
-	  	usleep(1000*10);
+	  
+	  value = atoi(msg);*/
+	  
+	  if (chread > 0) {
+	    printf("recu : %s\n", buffer);
+	    //bsent = server.send(buffer, 4);
 	  }
 
-	  tmp_value = value;
+		//	usleep(1000*10);
+		//}
 
-	  tcflush(fd, TCIOFLUSH);
+		//tmp_value = value;
+
+	  //tcflush(fd, TCIOFLUSH);
 		
 	}
 
