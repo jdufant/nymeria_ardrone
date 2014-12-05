@@ -5,7 +5,7 @@
  * thrown when the ROS parameter requested does not exist or was misspelled.
  */
 
-NymeriaParamExc::NymeriaParamExc(void) : NymeriaExceptions(""){}
+NymeriaParamExc::NymeriaParamExc(string msg) : NymeriaExceptions(msg){}
 
 
 NymeriaParamExc::~NymeriaParamExc(void) throw(){}

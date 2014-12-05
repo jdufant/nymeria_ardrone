@@ -12,9 +12,11 @@ class NymeriaParamExc :
 	public NymeriaExceptions
 {
 public:
-	NymeriaParamExc(void);
+	NymeriaParamExc(string msg = "");
 	virtual ~NymeriaParamExc(void) throw();
 	virtual const char * what() const throw();
+private:
+
 };
 
 #endif

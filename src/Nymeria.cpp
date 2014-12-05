@@ -73,11 +73,12 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 
 	try {
 		if(securityDist >= 0){
-
-			tmpSecurityDist = getParameter("/nymeriaSecurityDist");
-			if(tmpSecurityDist != securityDist){
-				ROS_WARN("Given security distance does not match security distance given in NymeriaCheckObstacle.");
-				ROS_WARN("First security distance given will be considered.");
+			if(nh->hasParam("/nymeriaSecurityDist") && (tmpSecurityDist = getParameter("/nymeriaSecurityDist"))){
+				
+				if(tmpSecurityDist != securityDist){
+					ROS_WARN("Given security distance does not match security distance given in NymeriaCheckObstacle.");
+					ROS_WARN("First security distance given will be considered.");
+				}
 			}
 			else {
 				NymeriaMutexSecurityDistance::lock();
@@ -294,13 +295,7 @@ void Nymeria::keepSecurityDistance(){
 	if(hasObstacle())
 		triggerAction(NymeriaConstants::M_BACKWARD);
 	
-	do{
-		tmpCommand = getParameter("/nymeriaCommand");
-		if (	(tmpCommand != lastCmd)
-		    &&	(isSafeAction(tmpCommand)))
-			break;
-
-	} while(hasObstacle());
+	while(hasObstacle());
 	
 	triggerAction(NymeriaConstants::STOP);
 }
@@ -332,12 +327,12 @@ int Nymeria::getParameter(char * str){
 	try{
 		if(nh->getParam(str , param)){}
 		else
-			throw NymeriaParamExc();
+			throw NymeriaParamExc(str);
 
 	} catch(NymeriaExceptions& error){
 		/* Display error message. */
 		// TODO: wrap as ROS msg
-		fprintf(stderr,error.what());
+		fprintf(stderr, error.what());
 	}
 	return param;
 }
