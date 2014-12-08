@@ -80,7 +80,7 @@ int main()
 
   int tabVal[NB_VAL];
   char readBuffer[BUFFER_SIZE];
-  //const char sendBuffer[4];
+  char sendBuffer[4];
   int value, tmp_value = 0;
 
   struct termios options;
@@ -118,6 +118,7 @@ int main()
 	// wait for client to connect
 	while(server.recv(readBuffer, BUFFER_SIZE) == -1);
 	
+	printf("connected\n");
 	while (1) {
 
 	  // Read from the port
@@ -135,23 +136,26 @@ int main()
 	  if (chread > 0) {
 	    printf("recu : %s\n", readBuffer);
 
-	    if((tabVal[cpt_boucle] = atoi(readBuffer)) < 400){
+	    if((tabVal[cpt_boucle] = atoi(readBuffer)) < 400)
 	      cpt_tab ++;
-	    }
 
 	    cpt_boucle++;
 	  }
 
 	  if (cpt_boucle >=10){
 	    value = traitTab(tabVal, cpt_tab);
-	    ss << value;
-	    tmpStr = ss.str();
-	    const char* sendBuffer = tmpStr.c_str();
+	    printf("tabtrait = %d\n",value);
+	    sprintf(sendBuffer, "%d", value);
 	    bsent = server.send(sendBuffer, 4);
+
 	    cpt_boucle = 0;
+	    cpt_tab = 0;
+
 	  }
 		
-	}
+	} //end while
+	
+	printf("Closed\n");
 
 	close(fd);
 }
@@ -177,6 +181,9 @@ int traitTab(int* tab, int size)
   total = 0;
   for(int i =0; i < size; i++)
     total += tab[i];
-
+  
   return total/size;
+  
+
+  return moyenne;
 }
