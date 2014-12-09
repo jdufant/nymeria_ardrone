@@ -121,13 +121,14 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
  */
 int Nymeria::triggerAction(int cmd){
 
-  float factor = 0.0;
+  float factor=1;
 	if(cmd == lastCmd)
 		return cmd;
 
 	switch(cmd){
 	case NymeriaConstants::M_FORWARD:
 		ROS_INFO("M_FORWARD");
+		factor = calculateSpeedFactor();
 		move_msg.linear.x = 1;
 		break;
 	case NymeriaConstants::M_BACKWARD:
@@ -208,7 +209,7 @@ int Nymeria::triggerAction(int cmd){
 		break;
 	}
 	
-	factor = calculateSpeedFactor();
+
 	move_msg.linear.x *= speed*factor;
 	move_msg.linear.y *= speed;
 	move_msg.linear.z *= speed;
@@ -216,6 +217,7 @@ int Nymeria::triggerAction(int cmd){
 	move_msg.angular.y *= speed;
 	move_msg.angular.z *= speed;
 
+	printf("move_msg.linear.x = %f; factor = %f\n", move_msg.linear.x, factor);
 	pub_cmd_move.publish(move_msg);
 	ROS_INFO("Move :\nlinear.x = %f\nlinear.y = %f\nlinear.z = %f\nangular.x = %f\nangular.y = %f\nangular.z = %f\n", 
 			move_msg.linear.x, move_msg.linear.y, move_msg.linear.z,
@@ -324,11 +326,15 @@ bool Nymeria::hasObstacle(){
 float Nymeria::calculateSpeedFactor(){
   int tmpStateObstacle;
   int tmpSecurityDist;
+  float factor;
 
   tmpSecurityDist = getParameter("/nymeriaSecurityDist");
   tmpStateObstacle = getParameter("/nymeriaStateObstacle");
-  float factor = (tmpStateObstacle - tmpSecurityDist)/100;
   
+  factor = (tmpStateObstacle - tmpSecurityDist);
+  factor = factor / 100.0;
+  printf("factor 22 2  : %f\n", factor);
+
   if(factor > 1.0){
     factor = 1.0;
   } else if (factor < 0.0){
