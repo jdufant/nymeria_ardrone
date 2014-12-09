@@ -21,12 +21,11 @@ int serialport_read_until(int fd, char* buf, char until)
     char b[1];
     int i=0; int n=0; int chread=0;
     
-    //printf("read_until\n");
     do { 
         n = read(fd, b, 1);  // read a char at a time
         if( n==-1) return -1;    // couldn't read
         if( n==0 ) {
-	  //usleep(5* 1000 ); // wait 1 msec try again
+	  usleep(1000); // wait 1 msec, then try again
 	  continue;
         }
         buf[i] = b[0]; 
@@ -36,9 +35,9 @@ int serialport_read_until(int fd, char* buf, char until)
     
     chread = i-1;
 
-    for (int j = i; i < BUFFER_SIZE; i++)
+    for (int j = (i-1); i < BUFFER_SIZE; i++)
       {
-	buf[i] = '\0';  // null terminate the string
+	buf[j] = '\0';  // null char for the rest of the buffer
       }
 
     return chread;
@@ -109,7 +108,7 @@ int main()
 	if ( tcsetattr( fd, TCSANOW, &options ) == -1 )
 		perror("Error with tcsetattr");
 	else
-		printf("tcsetattr succeed\nPERROQUET\n");
+		printf("tcsetattr succeed\nGODZILLA version\n");
 
 	// Open UDP server //
 	UDPServer server("192.168.1.1", 7777);
@@ -121,38 +120,30 @@ int main()
 	printf("connected\n");
 	while (1) {
 
-	  // Read from the port
+	  // Read from the serial port
 	  // TODO : check response time (maybe with baud rate) and read() returned value is 0 for EOF
-
 	  chread = serialport_read_until(fd, readBuffer, 'x');
-
-	  /*msg[3] = '\0';
-	  msg[2] = buffer[2];
-	  msg[1] = buffer[1];
-	  msg[0] = buffer[0];
-	  
-	  value = atoi(msg);*/
 	  
 	  if (chread > 0) {
-	    printf("recu : %s\n", readBuffer);
 
-	    if((tabVal[cpt_boucle] = atoi(readBuffer)) < 400)
+	    if((tabVal[cpt_tab] = atoi(readBuffer)) < 298){
+	      //printf("recu : %s\n", readBuffer);
 	      cpt_tab ++;
+	    }
 
 	    cpt_boucle++;
 	  }
 
-	  if (cpt_boucle >=10){
+	  if (cpt_boucle>=NB_VAL && cpt_tab>0){
 	    value = traitTab(tabVal, cpt_tab);
-	    printf("tabtrait = %d\n",value);
+	    printf("%d tabtrait => %d\n",cpt_tab, value);
 	    sprintf(sendBuffer, "%d", value);
 	    bsent = server.send(sendBuffer, 4);
 
 	    cpt_boucle = 0;
 	    cpt_tab = 0;
 
-	  }
-		
+	  }	
 	} //end while
 	
 	printf("Closed\n");
@@ -166,24 +157,30 @@ int traitTab(int* tab, int size)
   int moyenne = 0;
   const int ecart = 20;
   
-  for(int i =0; i < size; i++)
+  printf("tabtrait\n");
+  for(int i =0; i < size; i++) {
+    //printf("tab = %d\n", tab[i]);
     total += tab[i];
+  }
 
   moyenne = total/size;
+  //printf("moyenne intermédiaire = %d\n", moyenne);
 
   for(int i =0; i < size; i++){
-    if (abs(tab[i] - moyenne) >= 20)
+    if (abs(tab[i] - moyenne) > 60){
       for (int j = i; j < size-1; j++)
 	tab[j] = tab[j+1];
-    size--;
+      size--;
+    }
   }
-  
-  total = 0;
-  for(int i =0; i < size; i++)
-    total += tab[i];
-  
-  return total/size;
-  
 
-  return moyenne;
+  total = 0;
+  for(int i =0; i < size; i++) {
+    total += tab[i];
+    //printf("tab[%d] = %d\n", i, tab[i]);
+  }
+
+  printf("total = %d\nsize = %d\n", total, size);
+  
+  return (int)total/size;
 }
