@@ -66,6 +66,7 @@ class Nymeria
 		void reactionRoutine();
 		int getParameter(char * str);
 		bool hasObstacle();
+		float calculateSpeedFactor();
 		int validateStates();
 		// TODO : void stateDroneCallback(const ardrone_autonomy::Navdata& data);
 

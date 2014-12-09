@@ -121,6 +121,7 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
  */
 int Nymeria::triggerAction(int cmd){
 
+  float factor = 0.0;
 	if(cmd == lastCmd)
 		return cmd;
 
@@ -206,8 +207,9 @@ int Nymeria::triggerAction(int cmd){
 		ROS_WARN("Command unknown\n");
 		break;
 	}
-
-	move_msg.linear.x *= speed;
+	
+	factor = calculateSpeedFactor();
+	move_msg.linear.x *= speed*factor;
 	move_msg.linear.y *= speed;
 	move_msg.linear.z *= speed;
 	move_msg.angular.x *= speed;
@@ -310,6 +312,32 @@ bool Nymeria::hasObstacle(){
 	return ((tmpStateObstacle < tmpSecurityDist)
 		&& (tmpStateObstacle >= 0));	
 }
+
+
+
+/*
+ * Calcule un facteur multiplicatif qui adaptera la vitesse du drone à l'approche de l'obstacle
+ *
+ * @return factor
+ */
+
+float Nymeria::calculateSpeedFactor(){
+  int tmpStateObstacle;
+  int tmpSecurityDist;
+
+  tmpSecurityDist = getParameter("/nymeriaSecurityDist");
+  tmpStateObstacle = getParameter("/nymeriaStateObstacle");
+  float factor = (tmpStateObstacle - tmpSecurityDist)/100;
+  
+  if(factor > 1.0){
+    factor = 1.0;
+  } else if (factor < 0.0){
+    factor = 0.0;
+  }
+
+  return factor;  
+}
+
 
 /** TODO
  * Routine in order to make drone stop in front of obstacle and
