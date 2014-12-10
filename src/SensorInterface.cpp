@@ -57,7 +57,7 @@ void SensorInterface::loop(ros::NodeHandle * n){
 	ros::Rate loop_rate(rate);
 
 	// 80 cm security distance
-	NymeriaCheckObstacle nco(n, 80);
+	NymeriaCheckObstacle nco(n, 100);
 
 	char message[BUFFER_SIZE];
 	int nb_char;
