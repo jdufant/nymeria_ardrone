@@ -36,6 +36,7 @@ void Controller::loop(ros::NodeHandle * n){
 	ros::Rate loop_rate(rate);
 
 	Nymeria nym (n, 100);
+
 	
 	while(ros::ok()){
 

@@ -62,12 +62,15 @@ class Nymeria
 		bool isSafeAction(int cmd);
 		void keepSecurityDistance();
 		void nymeriaRoutine(int cmd);
-		int triggerAction(int cmd);
+		int triggerAction(int cmd, float factor = 1.0);
 		void reactionRoutine();
 		int getParameter(char * str);
-		bool hasObstacle();
+		bool underSecurityDist();
+		bool obstaclePossible();
+		void slowDown();
 		float calculateSpeedFactor();
 		int validateStates();
+		// void stateDroneCallback (const ardrone_autonomy::Navdata& data);
 		// TODO : void stateDroneCallback(const ardrone_autonomy::Navdata& data);
 
 };

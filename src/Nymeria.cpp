@@ -21,7 +21,7 @@
  */
 
 // void Nymeria::stateDroneCallback (const ardrone_autonomy::Navdata& data){
-// 	navData.state = data.state;
+//  	printf("%f\n", data.rotY);
 // }
 
 Nymeria::Nymeria(){};
@@ -98,7 +98,7 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 	pub_cmd_reset = nh->advertise<std_msgs::Empty>("ardrone/reset", 10);
 	pub_cmd_move = nh->advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
-	// sub_navdata = nh->subscribe("ardrone/navdata", 10, stateDroneCallback);
+	//sub_navdata = nh->subscribe("/ardrone/navdata", 10, stateDroneCallback);
 
 };
 
@@ -119,16 +119,14 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
  * Forward command to drone.
  * @param cmd - incoming command.
  */
-int Nymeria::triggerAction(int cmd){
+int Nymeria::triggerAction(int cmd, float factor){
 
-  float factor=1;
 	if(cmd == lastCmd)
 		return cmd;
 
 	switch(cmd){
 	case NymeriaConstants::M_FORWARD:
 		ROS_INFO("M_FORWARD");
-		factor = calculateSpeedFactor();
 		move_msg.linear.x = 1;
 		break;
 	case NymeriaConstants::M_BACKWARD:
@@ -237,20 +235,7 @@ int Nymeria::triggerAction(int cmd){
 }
 
 /**
- * Check whether current state of drone and current state of
- * obstacle are compatible with user's command.
- *
- * Recursive function, that terminates, when either there is
- * a conflict between states and input command (trigger
- * reactionRoutine) (Case 1) or
- * states and command are compatible and the command has been
- * sent the first time (forward command) (Case 2).
- * Otherwise: When none of the above cases apply, it means that
- * the drone is moving (forward) and program has to keep checking
- * states in order to detect obstacles (Case 3).
- *
- * @param cmd - incoming command: Either M_FORWARD (termination)
- * or CHECK (recursive function call to validateStates(CHECK).
+ * TODO
  */
 int Nymeria::validateStates(){
 	int tmpCommand;
@@ -262,14 +247,42 @@ int Nymeria::validateStates(){
 	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
 
 	/* move forward and obstacle in front */
-	if (!isSafeAction(tmpCommand) && hasObstacle()){
-		reactionRoutine();
-		return NymeriaConstants::O_FRONT;
+	if (!isSafeAction(tmpCommand) && obstaclePossible()){
+
+		if(underSecurityDist()){
+			reactionRoutine();
+			return NymeriaConstants::O_FRONT;	
+		}
+		else {
+			slowDown();
+			return NymeriaConstants::O_FRONT; // TODO maybe add a new constant SLOW_DOWN
+		}
+		
 	}
 	/* forward command */
 	else {
 		return (triggerAction(tmpCommand));
 	}
+}
+
+/**
+ * TODO
+ */
+void Nymeria::slowDown(){
+	int lastCmd = getParameter("/nymeriaCommand");
+	while(!isSafeAction(lastCmd) && !underSecurityDist()){
+		triggerAction(lastCmd, getParameter("/nymeriaFactor"));
+		lastCmd = getParameter("/nymeriaCommand");
+	}
+	return;
+}
+
+/**
+ * TODO
+ */
+bool Nymeria::obstaclePossible(){
+	//TODO : harcoded if actual dist < security dist +50
+	return (getParameter("/nymeriaStateObstacle") < (getParameter("/nymeriaSecurityDist") + 50));
 }
 
 /**
@@ -296,15 +309,15 @@ void Nymeria::keepSecurityDistance(){
 
 	tmpCommand = getParameter("/nymeriaCommand");
 
-	if(hasObstacle())
+	if(underSecurityDist())
 		triggerAction(NymeriaConstants::M_BACKWARD);
 	
-	while(hasObstacle());
+	while(underSecurityDist());
 	
 	triggerAction(NymeriaConstants::STOP);
 }
 
-bool Nymeria::hasObstacle(){
+bool Nymeria::underSecurityDist(){
 	int tmpStateObstacle;
 	int tmpSecurityDist;
 
@@ -312,7 +325,7 @@ bool Nymeria::hasObstacle(){
 	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
 
 	return ((tmpStateObstacle < tmpSecurityDist)
-		&& (tmpStateObstacle >= 0));	
+		&& (tmpStateObstacle >= 0.0));	
 }
 
 

@@ -18,7 +18,20 @@ class NymeriaCheckObstacle
 	private:
 		ros::NodeHandle * nh;
 
+		double sommeError;
+		double error;
+		double cmdEstimePrec;
+		double angleEstimePrec;
+		double angleEstimePrec2;
+		double cmd;
+
 		int securityDist;
+		double pilotage ();
+		void regulation (double angleEstime);
+		double PID (double errorPrec);
+		double rebouclage(double angleEstime);
+		double saturationPente(double cmdPrec);
+		// TODO exc
 };
 
 #endif
