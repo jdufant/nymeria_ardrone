@@ -19,7 +19,7 @@ class Nymeria
 	friend class Controller;
 	public:
 		Nymeria();
-		Nymeria(ros::NodeHandle * n, int securityDist);
+		Nymeria(ros::NodeHandle * n, double securityDist);
 		void moveForward();
 		void moveBackward();
 		void moveLeft();
@@ -32,16 +32,25 @@ class Nymeria
 		void takeOff();
 		void land();
 		void emergencyStop();
-		void increaseMaxSpeed();
-		void decreaseMaxSpeed();
+		void increaseMaxLinearSpeed();
+		void decreaseMaxLinearSpeed();
+		void increaseMaxAngularSpeed();
+		void decreaseMaxAngularSpeed();
 		void increaseLinearSpeed();
 		void decreaseLinearSpeed();
 		void increaseAngularSpeed();
 		void decreaseAngularSpeed();
+		double getSecurityDist();
+		void setSecurityDist(double secDist);
+		double getMaxLinearSpeed();
+		void setMaxLinearSpeed(double speed);
+		double getMaxAngularSpeed();
+		void setMaxAngularSpeed(double speed);
+		double getLinearSpeed();
+		double getAngularSpeed();
 		
 	private:
 		ros::NodeHandle * nh;
-		/* Publishers, to send messages on topics. */
 		ros::Publisher pub_cmd_takeoff;
 		ros::Publisher pub_cmd_land;
 		ros::Publisher pub_cmd_move;
@@ -53,8 +62,11 @@ class Nymeria
 		geometry_msgs::Twist move_msg;
 
 		int lastCmd;
-		float speed;
-		int safeActions[18];
+		double maxLinearSpeed;
+		double maxAngularSpeed;
+		double linearSpeed;
+		double angularSpeed;
+		int safeActions[20];
 
 		/* Initialization helper functions; */
 		void init_safeActions();
@@ -71,7 +83,7 @@ class Nymeria
 		void reactionRoutine();
 		void keepSecurityDistance();
 		void slowDown();
-		// TODO : void stateDroneCallback(const ardrone_autonomy::Navdata& data);
+		bool inRange(double min, double max, double value);
 
 };
 
