@@ -61,19 +61,21 @@ class Nymeria
 
 		/* Initialization helper functions; */
 		void init_safeActions();
-		void init_rosParams();
+		void init_rosParams(int securityDist);
 		void init_move_msg();
 		void init_publishers();
+		
 		int getParameter(char * str);
-		int triggerAction(int cmd, float factor = 1.0);
-		bool isSafeAction(int cmd);
-		void keepSecurityDistance();
-		void reactionRoutine();
-		bool underSecurityDist();
-		bool obstaclePossible();
-		void slowDown();
-		float calculateSpeedFactor();
 		int validateStates();
+		bool isSafeAction(int cmd);
+		bool obstaclePossible();
+		bool underSecurityDist();
+		int triggerAction(int cmd, float factor = 1.0);
+		void reactionRoutine();
+		void keepSecurityDistance();
+		void slowDown();
+		
+		float calculateSpeedFactor();
 		// void stateDroneCallback (const ardrone_autonomy::Navdata& data);
 		// TODO : void stateDroneCallback(const ardrone_autonomy::Navdata& data);
 
