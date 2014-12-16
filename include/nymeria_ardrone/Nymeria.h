@@ -62,6 +62,7 @@ class Nymeria
 		bool isSafeAction(int cmd);
 		void keepSecurityDistance();
 		void nymeriaRoutine(int cmd);
+		void init_safeActions();
 		int triggerAction(int cmd, float factor = 1.0);
 		void reactionRoutine();
 		int getParameter(char * str);
