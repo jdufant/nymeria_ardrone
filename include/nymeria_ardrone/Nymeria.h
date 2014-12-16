@@ -71,7 +71,6 @@ class Nymeria
 		void reactionRoutine();
 		void keepSecurityDistance();
 		void slowDown();
-		// void stateDroneCallback (const ardrone_autonomy::Navdata& data);
 		// TODO : void stateDroneCallback(const ardrone_autonomy::Navdata& data);
 
 };
