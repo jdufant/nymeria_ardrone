@@ -70,7 +70,7 @@ void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 			NymeriaMutexObstacle::lock();
 				if(nh->hasParam("/nymeriaStateObstacle")){
 
-					nh->setParam("/nymeriaStateObstacle", cfd);
+					nh->setParam("nymeriaStateObstacle", cfd);
 				}
 				else throw NymeriaParamExc();
 			NymeriaMutexObstacle::unlock();
@@ -81,7 +81,7 @@ void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 
 				if(stateObstacle > 0){
 					NymeriaMutexObstacle::lock();
-						nh->setParam("/nymeriaStateObstacle", -1);
+						nh->setParam("nymeriaStateObstacle", -1);
 					NymeriaMutexObstacle::unlock();
 				}
 			}
@@ -110,7 +110,7 @@ void NymeriaCheckObstacle::setSecurityDist(int sd){
 	try {
 		if(nh->hasParam("/nymeriaSecurityDist")){
 			NymeriaMutexSecurityDistance::lock();
-			nh->setParam("/nymeriaSecurityDist", securityDist);
+			nh->setParam("nymeriaSecurityDist", securityDist);
 			NymeriaMutexSecurityDistance::unlock();
 		}
 		else throw NymeriaParamExc();
@@ -163,7 +163,7 @@ void NymeriaCheckObstacle::regulation (double angleEstimated){
 	// TODO mutex + try catch
 	//NymeriaMutexObstacle::lock();
 	if(nh->hasParam("/nymeriaFactor")){
-		nh->setParam("/nymeriaFactor", PID(lastError));
+		nh->setParam("nymeriaFactor", PID(lastError));
 	}
 		//else throw NymeriaParamExc();
 	//NymeriaMutexObstacle::unlock();
