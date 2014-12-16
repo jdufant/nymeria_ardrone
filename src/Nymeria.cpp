@@ -313,8 +313,13 @@ void init_publishers(){
 	this.pub_cmd_move = nh->advertise<geometry_msgs::Twist>("cmd_vel", 10);
 }
  
+/**
+ * Helper function in order to access ROS parameters (read access).
+ * @param str: name of parameter.
+ * @return param: read parameter value, -1 if no parameter is found.
+ */
 int Nymeria::getParameter(char * str){
-	int param;
+	int param = -1;
 	try{
 		if(nh->getParam(str , param)){}
 		else
@@ -326,6 +331,83 @@ int Nymeria::getParameter(char * str){
 		fprintf(stderr, error.what());
 	}
 	return param;
+}
+
+/**
+ * Entry point of obstactle detection and avoidance.
+ * Algorithm analyzes sensor data in the form of distances and decides whether to 
+ * (1) either stop the drone immediately and let it move backward if applicable
+ * (2) or let the drone slow down
+ * (3) or process the user's command without acting.
+ */
+int Nymeria::validateStates(){
+	int tmpCommand;
+	int tmpSecurityDist;
+	int tmpStateObstacle;
+	
+	tmpCommand = getParameter("/nymeriaCommand");
+	tmpSecurityDist = getParameter("/nymeriaSecurityDist");
+	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
+
+	/* Moving forward and obstacle possibly in front? */
+	if (!isSafeAction(tmpCommand) && obstaclePossible()){
+		/* (1)Security distance already passed? */
+		if(underSecurityDist()){
+			reactionRoutine();
+			return NymeriaConstants::O_FRONT;	
+		}
+		/* (2)Anticipating obstacle. */
+		else {
+			slowDown();
+			return NymeriaConstants::O_FRONT; // TODO maybe add a new constant SLOW_DOWN
+		}
+		
+	}
+	/* (3)Forward command. */
+	else {
+		return (triggerAction(tmpCommand));
+	}
+}
+
+/**
+ * Does the user's command belong to the list of safeActions,
+ * i.e. can the command be safely forwarded to the drone?
+ *
+ * @param cmd - incoming command.
+ * @return true: yes, command can be forwarded.
+ * 		   false: no, check for obstacles is necessary.
+ */
+bool Nymeria::isSafeAction(int cmd){
+	for (int i = 0; i < sizeof(safeActions)/sizeof(*safeActions); i++){
+		if (safeActions[i] == cmd){
+			// ROS_INFO("cas 6");
+
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * TODO
+ */
+bool Nymeria::obstaclePossible(){
+	//TODO : harcoded if actual dist < security dist +50
+	return (getParameter("/nymeriaStateObstacle") < (getParameter("/nymeriaSecurityDist") + 50));
+}
+
+/**
+ * TODO
+ */
+bool Nymeria::underSecurityDist(){
+	int tmpStateObstacle;
+	int tmpSecurityDist;
+
+	tmpSecurityDist = getParameter("/nymeriaSecurityDist");
+	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
+
+	return ((tmpStateObstacle < tmpSecurityDist)
+		&& (tmpStateObstacle >= 0.0));	
 }
 
 /**
@@ -450,75 +532,18 @@ int Nymeria::triggerAction(int cmd, float factor){
 }
 
 /**
- * TODO
+ * Routine in order to make drone stop in front of obstacle and
+ * keep the security distance.
  */
-int Nymeria::validateStates(){
-	int tmpCommand;
-	int tmpSecurityDist;
-	int tmpStateObstacle;
-	
-	tmpCommand = getParameter("/nymeriaCommand");
-	tmpSecurityDist = getParameter("/nymeriaSecurityDist");
-	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
-
-	/* move forward and obstacle in front */
-	if (!isSafeAction(tmpCommand) && obstaclePossible()){
-
-		if(underSecurityDist()){
-			reactionRoutine();
-			return NymeriaConstants::O_FRONT;	
-		}
-		else {
-			slowDown();
-			return NymeriaConstants::O_FRONT; // TODO maybe add a new constant SLOW_DOWN
-		}
-		
-	}
-	/* forward command */
-	else {
-		return (triggerAction(tmpCommand));
-	}
+void Nymeria::reactionRoutine(){
+	ROS_INFO("reaction routine");
+	triggerAction(NymeriaConstants::STOP);
+	keepSecurityDistance();
 }
 
 /**
  * TODO
  */
-void Nymeria::slowDown(){
-	int lastCmd = getParameter("/nymeriaCommand");
-	while(!isSafeAction(lastCmd) && !underSecurityDist()){
-		triggerAction(lastCmd, getParameter("/nymeriaFactor"));
-		lastCmd = getParameter("/nymeriaCommand");
-	}
-	return;
-}
-
-/**
- * TODO
- */
-bool Nymeria::obstaclePossible(){
-	//TODO : harcoded if actual dist < security dist +50
-	return (getParameter("/nymeriaStateObstacle") < (getParameter("/nymeriaSecurityDist") + 50));
-}
-
-/**
- * Does the user's command belong to the list of safeActions,
- * i.e. can the command be safely forwarded to the drone?
- *
- * @param cmd - incoming command.
- * @return true: yes, command can be forwarded.
- * 		   false: no, check for obstacles is necessary.
- */
-bool Nymeria::isSafeAction(int cmd){
-	for (int i = 0; i < sizeof(safeActions)/sizeof(*safeActions); i++){
-		if (safeActions[i] == cmd){
-			// ROS_INFO("cas 6");
-
-			return true;
-		}
-	}
-	return false;
-}
-
 void Nymeria::keepSecurityDistance(){
 	int tmpCommand;
 
@@ -532,18 +557,17 @@ void Nymeria::keepSecurityDistance(){
 	triggerAction(NymeriaConstants::STOP);
 }
 
-bool Nymeria::underSecurityDist(){
-	int tmpStateObstacle;
-	int tmpSecurityDist;
-
-	tmpSecurityDist = getParameter("/nymeriaSecurityDist");
-	tmpStateObstacle = getParameter("/nymeriaStateObstacle");
-
-	return ((tmpStateObstacle < tmpSecurityDist)
-		&& (tmpStateObstacle >= 0.0));	
+/**
+ * TODO
+ */
+void Nymeria::slowDown(){
+	int lastCmd = getParameter("/nymeriaCommand");
+	while(!isSafeAction(lastCmd) && !underSecurityDist()){
+		triggerAction(lastCmd, getParameter("/nymeriaFactor"));
+		lastCmd = getParameter("/nymeriaCommand");
+	}
+	return;
 }
-
-
 
 /*
  * Calcule un facteur multiplicatif qui adaptera la vitesse du drone à l'approche de l'obstacle
@@ -570,15 +594,4 @@ float Nymeria::calculateSpeedFactor(){
   }
 
   return factor;  
-}
-
-
-/** TODO
- * Routine in order to make drone stop in front of obstacle and
- * then bypass it, i.e. navigate around it.
- */
-void Nymeria::reactionRoutine(){
-	ROS_INFO("reaction routine");
-	triggerAction(NymeriaConstants::STOP);
-	keepSecurityDistance();
 }
