@@ -48,7 +48,7 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 			throw NymeriaInvalidSecurityDistance();
 
 		//NymeriaMutexObstacle::lock();
-			nh->setParam("nymeriaFactor", 0.0);
+			nh->setParam("nymeriaFactor", 1.0);
 		//NymeriaMutexObstacle::unlock();
 
 
