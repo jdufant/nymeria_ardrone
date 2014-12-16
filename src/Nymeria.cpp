@@ -24,8 +24,6 @@ Nymeria::Nymeria(){};
  */
 Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 
-	int tmpSecurityDist = -1;
-
 	speed = 0.05;
 	lastCmd = 0;
 
@@ -40,7 +38,7 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 
 	/* Set parameters shared with all ROS nodes. */ 
 	try {
-		init_rosParams();
+		init_rosParams(securityDist);
 	}
 	catch(NymeriaExceptions& error){
 		/* Display error message. */
@@ -239,30 +237,31 @@ void Nymeria::decreaseAngularSpeed(){
  * Helper function in order to initialize the array of safe actions.
  */
 void Nymeria::init_safeActions(){
-	safeActions[0] = NymeriaConstants::M_BACKWARD;
-	safeActions[1] = NymeriaConstants::M_LEFT;
-	safeActions[2] = NymeriaConstants::M_RIGHT;
-	safeActions[3] = NymeriaConstants::M_UP;
-	safeActions[4] = NymeriaConstants::M_DOWN;
-	safeActions[5] = NymeriaConstants::T_LEFT;
-	safeActions[6] = NymeriaConstants::T_RIGHT;
-	safeActions[7] = NymeriaConstants::STOP;
-	safeActions[8] = NymeriaConstants::TAKEOFF;
-	safeActions[9] = NymeriaConstants::LAND;
-	safeActions[10] = NymeriaConstants::E_STOP;
-	safeActions[11] = NymeriaConstants::I_M_SPEED;
-	safeActions[12] = NymeriaConstants::D_M_SPEED;
-	safeActions[13] = NymeriaConstants::I_L_SPEED;
-	safeActions[14] = NymeriaConstants::D_L_SPEED;
-	safeActions[15] = NymeriaConstants::I_A_SPEED;
-	safeActions[16] = NymeriaConstants::D_A_SPEED;
+	this.safeActions[0] = NymeriaConstants::M_BACKWARD;
+	this.safeActions[1] = NymeriaConstants::M_LEFT;
+	this.safeActions[2] = NymeriaConstants::M_RIGHT;
+	this.safeActions[3] = NymeriaConstants::M_UP;
+	this.safeActions[4] = NymeriaConstants::M_DOWN;
+	this.safeActions[5] = NymeriaConstants::T_LEFT;
+	this.safeActions[6] = NymeriaConstants::T_RIGHT;
+	this.safeActions[7] = NymeriaConstants::STOP;
+	this.safeActions[8] = NymeriaConstants::TAKEOFF;
+	this.safeActions[9] = NymeriaConstants::LAND;
+	this.safeActions[10] = NymeriaConstants::E_STOP;
+	this.safeActions[11] = NymeriaConstants::I_M_SPEED;
+	this.safeActions[12] = NymeriaConstants::D_M_SPEED;
+	this.safeActions[13] = NymeriaConstants::I_L_SPEED;
+	this.safeActions[14] = NymeriaConstants::D_L_SPEED;
+	this.safeActions[15] = NymeriaConstants::I_A_SPEED;
+	this.safeActions[16] = NymeriaConstants::D_A_SPEED;
 }
 
 /**
  * Helper function in order to initialize ROS parameters nymeriaCommand, nymeriaStateObstacle, nymeriaSecurityDist.
  * @throws NymeriaInvalidSecurityDistance if entered security distance is negative.
  */
-void Nymeria::init_rosParams() throws NymeriaInvalidSecurityDistance{
+void Nymeria::init_rosParams(int securityDist) throws NymeriaInvalidSecurityDistance{
+	int tmpSecurityDist = -1;
 	/* nymeriaCommand */
 	NymeriaMutexCommand::lock();
 		nh->setParam("nymeriaCommand", 0);
@@ -296,22 +295,22 @@ void Nymeria::init_rosParams() throws NymeriaInvalidSecurityDistance{
  * Helper function in order to initialize move_msg.
  */
 void init_move_msg(){
-	move_msg.linear.x = 0;
-	move_msg.linear.y = 0;
-	move_msg.linear.z = 0;
-	move_msg.angular.x = 0;
-	move_msg.angular.y = 0;
-	move_msg.angular.z = 0;
+	this.move_msg.linear.x = 0;
+	this.move_msg.linear.y = 0;
+	this.move_msg.linear.z = 0;
+	this.move_msg.angular.x = 0;
+	this.move_msg.angular.y = 0;
+	this.move_msg.angular.z = 0;
 }
 
 /**
  * Helper function in order to initialize publishers.
  */
 void init_publishers(){
-	pub_cmd_takeoff = nh->advertise<std_msgs::Empty>("ardrone/takeoff", 10);
-	pub_cmd_land = nh->advertise<std_msgs::Empty>("ardrone/land", 10);
-	pub_cmd_reset = nh->advertise<std_msgs::Empty>("ardrone/reset", 10);
-	pub_cmd_move = nh->advertise<geometry_msgs::Twist>("cmd_vel", 10);
+	this.pub_cmd_takeoff = nh->advertise<std_msgs::Empty>("ardrone/takeoff", 10);
+	this.pub_cmd_land = nh->advertise<std_msgs::Empty>("ardrone/land", 10);
+	this.pub_cmd_reset = nh->advertise<std_msgs::Empty>("ardrone/reset", 10);
+	this.pub_cmd_move = nh->advertise<geometry_msgs::Twist>("cmd_vel", 10);
 }
  
 int Nymeria::getParameter(char * str){
