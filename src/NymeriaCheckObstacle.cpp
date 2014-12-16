@@ -4,18 +4,29 @@
 #include <nymeria_ardrone/NymeriaMutexObstacle.h>
 #include <nymeria_ardrone/NymeriaMutexSecurityDistance.h>
 
+double pitch = 0.0;
+
+void stateDroneCallback(const ardrone_autonomy::Navdata& data){
+	printf("%f\n", data.rotY);
+	pitch = data.rotY;
+}
+
 NymeriaCheckObstacle::NymeriaCheckObstacle(){}
 NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist){
 	int tmpSecurityDist = -1;
 
-	sumError = 0;
-	error = 0;
-	lastCmdEstimated = 0;
-	lastAngleEstimated = 0;
-	lastAngleEstimated2 = 0;
-	cmd = 0;
+	//pitch = 0.0;
+	sumError = 0.0;
+	error = 0.0;
+	lastCmdEstimated = 0.0;
+	lastAngleEstimated = 0.0;
+	lastAngleEstimated2 = 0.0;
+	cmd = 0.0;
 
 	nh = n;
+
+	sub_navdata = nh->subscribe("/ardrone/navdata", 1, &stateDroneCallback);
+
 	this->securityDist = securityDist;
 
 	try {
@@ -35,8 +46,6 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 		}
 		else
 			throw NymeriaInvalidSecurityDistance();
-
-
 
 		//NymeriaMutexObstacle::lock();
 			nh->setParam("nymeriaFactor", 0.0);
@@ -87,6 +96,8 @@ void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 
 	// TODO call back
 
+	ros::spinOnce();
+	regulation(pitch);
 	//regulation()
 }
 
@@ -115,7 +126,7 @@ void NymeriaCheckObstacle::setSecurityDist(int sd){
 
 
 // TODO not valid for doxygen
-/*
+/**
 * Pilote le drone
 *
 * @param tmpStateObstacle, retourné par le capteur
