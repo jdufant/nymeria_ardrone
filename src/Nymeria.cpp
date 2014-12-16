@@ -425,7 +425,7 @@ int Nymeria::triggerAction(int cmd, float factor){
 	/* Ignore commands that are repeatedly entered by the user and processed directly,
 	   see validateStates case 3. */
 	if(  (cmd == lastCmd)
-	   &&(factor != 1.0))
+	   &&(factor == 1.0))
 		return cmd;
 
 	switch(cmd){
