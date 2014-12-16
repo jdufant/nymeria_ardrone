@@ -63,6 +63,7 @@ class Nymeria
 		void init_safeActions();
 		void init_rosParams();
 		void init_move_msg();
+		void init_publishers();
 		int getParameter(char * str);
 		int triggerAction(int cmd, float factor = 1.0);
 		bool isSafeAction(int cmd);
