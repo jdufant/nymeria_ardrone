@@ -356,7 +356,7 @@ int Nymeria::validateStates(){
 		/* (2)Anticipating obstacle. */
 		else {
 			slowDown();
-			return NymeriaConstants::O_FRONT; // TODO maybe add a new constant SLOW_DOWN
+			return NymeriaConstants::SLOW_DOWN; // TODO maybe add a new constant SLOW_DOWN
 		}
 		
 	}
