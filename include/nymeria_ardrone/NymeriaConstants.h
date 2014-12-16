@@ -9,8 +9,9 @@
 class NymeriaConstants{
 	public:
 		NymeriaConstants();
+		static const double E_PARAM = -2.0;
 		static const int O_FRONT = -1;
-		
+		static const int INIT = 0;
 		static const int M_FORWARD = 1;
 		static const int M_BACKWARD = 2;
 		static const int M_LEFT = 3;

@@ -44,14 +44,11 @@ void Controller::loop(ros::NodeHandle * n){
 		errorCode = nym.validateStates();
 
 		switch (errorCode) {
-			case 0 :
+			case NymeriaConstants::INIT :
 				if(errorCode != lastErrorCode) printf("init\n");
 				break;
-			case -1 :
+			case NymeriaConstants::O_FRONT :
 				if(errorCode != lastErrorCode) printf("obstacle\n");
-				break;
-			case -2 :
-				if(errorCode != lastErrorCode) printf("avoidance routine\n");
 				break;
 			default :
 				if(errorCode != lastErrorCode) printf("code : %d\n", errorCode);

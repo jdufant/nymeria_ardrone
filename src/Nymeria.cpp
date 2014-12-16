@@ -319,8 +319,8 @@ void Nymeria::init_publishers(){
  * @param str - name of parameter.
  * @return read parameter value, -1 if no parameter is found.
  */
-int Nymeria::getParameter(char * str){
-	int param = -1;
+double Nymeria::getParameter(char * str){
+	double param = 1.0;
 	try{
 		if(nh->getParam(str , param)){}
 		else
@@ -393,7 +393,8 @@ bool Nymeria::obstaclePossible(){
 	//TODO : harcoded if actual dist < security dist +50
 	char nymeriaStateObstacle[] = "/nymeriaStateObstacle";
 	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
-	return (getParameter(nymeriaStateObstacle) < (getParameter(nymeriaSecurityDist) + 50));
+	return  ((getParameter(nymeriaStateObstacle) < (getParameter(nymeriaSecurityDist) + 50))
+	       &&(getParameter(nymeriaStateObstacle) >= 0.0));
 }
 
 /**
@@ -420,15 +421,16 @@ bool Nymeria::underSecurityDist(){
  * @param factor - regulating speed factor for slow down, 1 by default.
  * @return constant representing cmd processed.
  */
-int Nymeria::triggerAction(int cmd, float factor){
+int Nymeria::triggerAction(int cmd, double factor){
 
 	/* Ignore commands that are repeatedly entered by the user and processed directly,
 	   see validateStates case 3. */
-	if(  (cmd == lastCmd)
-	   &&(factor == 1.0))
+	if((cmd == lastCmd) && (factor == 1.0))
 		return cmd;
 
 	switch(cmd){
+	case NymeriaConstants::INIT:
+		break;
 	case NymeriaConstants::M_FORWARD:
 		ROS_INFO("M_FORWARD");
 		move_msg.linear.x = 1;

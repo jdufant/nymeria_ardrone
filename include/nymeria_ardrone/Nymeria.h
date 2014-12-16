@@ -62,12 +62,12 @@ class Nymeria
 		void init_move_msg();
 		void init_publishers();
 		
-		int getParameter(char * str);
+		double getParameter(char * str);
 		int validateStates();
 		bool isSafeAction(int cmd);
 		bool obstaclePossible();
 		bool underSecurityDist();
-		int triggerAction(int cmd, float factor = 1.0);
+		int triggerAction(int cmd, double factor = 1.0);
 		void reactionRoutine();
 		void keepSecurityDistance();
 		void slowDown();
