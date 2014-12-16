@@ -41,7 +41,7 @@ class Nymeria
 		
 	private:
 		ros::NodeHandle * nh;
-		  /**Publishers, to send messages on topics**/
+		/* Publishers, to send messages on topics. */
 		ros::Publisher pub_cmd_takeoff;
 		ros::Publisher pub_cmd_land;
 		ros::Publisher pub_cmd_move;
@@ -59,13 +59,15 @@ class Nymeria
 		float speed;
 		int safeActions[18];
 
+		/* Initialization helper functions; */
+		void init_safeActions();
+		void init_rosParams();
+		void init_move_msg();
+		int getParameter(char * str);
+		int triggerAction(int cmd, float factor = 1.0);
 		bool isSafeAction(int cmd);
 		void keepSecurityDistance();
-		void nymeriaRoutine(int cmd);
-		void init_safeActions();
-		int triggerAction(int cmd, float factor = 1.0);
 		void reactionRoutine();
-		int getParameter(char * str);
 		bool underSecurityDist();
 		bool obstaclePossible();
 		void slowDown();
