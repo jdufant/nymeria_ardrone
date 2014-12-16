@@ -148,6 +148,7 @@ void NymeriaCheckObstacle::regulation (double angleEstimated){
 	double lastCmd = cmd; // init
 	cmd = pilotage();
 	cmd = saturationPente(lastCmd);
+	printf("[NymeriaCheckObstacle::regulation] val cmd = %f\n");
 	
 	//convertie l'angle en cmd estimé
 	lastAngleEstimated2 = lastAngleEstimated;
@@ -243,9 +244,9 @@ double NymeriaCheckObstacle::rebouclage(double angleEstimated){
 double NymeriaCheckObstacle::saturationPente(double lastCmd){
 	double param = 0.5; //paramètre de saturation de la pente
 	if((cmd - lastCmd) > param){
-		return param;
+	  return (cmd + param);
 	} else if((cmd - lastCmd) < -param){
-		return -param;
+	  return (cmd-param);
 	} else {
 		return cmd;
 	}
