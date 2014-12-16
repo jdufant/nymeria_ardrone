@@ -51,13 +51,10 @@ class Nymeria
 		
 		std_msgs::Empty empty_msg;
 		geometry_msgs::Twist move_msg;
-		
-		int command;
-		int stateObstacle;
 
 		int lastCmd;
 		float speed;
-		int safeActions[18];
+		int safeActions[17];
 
 		/* Initialization helper functions; */
 		void init_safeActions();
@@ -74,8 +71,6 @@ class Nymeria
 		void reactionRoutine();
 		void keepSecurityDistance();
 		void slowDown();
-		
-		float calculateSpeedFactor();
 		// void stateDroneCallback (const ardrone_autonomy::Navdata& data);
 		// TODO : void stateDroneCallback(const ardrone_autonomy::Navdata& data);
 
