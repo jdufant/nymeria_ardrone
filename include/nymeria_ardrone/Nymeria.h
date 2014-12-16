@@ -54,7 +54,7 @@ class Nymeria
 
 		int lastCmd;
 		float speed;
-		int safeActions[17];
+		int safeActions[18];
 
 		/* Initialization helper functions; */
 		void init_safeActions();

@@ -248,6 +248,8 @@ void Nymeria::init_safeActions(){
 	this->safeActions[14] = NymeriaConstants::D_L_SPEED;
 	this->safeActions[15] = NymeriaConstants::I_A_SPEED;
 	this->safeActions[16] = NymeriaConstants::D_A_SPEED;
+	this->safeActions[17] = NymeriaConstants::INIT;
+
 }
 
 /**
