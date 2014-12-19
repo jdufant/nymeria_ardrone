@@ -37,6 +37,7 @@ class NymeriaCheckObstacle
 		double PID (double lastError);
 		double rebouclage(double angleEstimated);
 		double saturationPente(double lastCmd);
+		void saturationCommande(double& cmd);
 		// TODO exc
 };
 

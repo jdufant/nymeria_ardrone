@@ -139,6 +139,7 @@ void NymeriaCheckObstacle::regulation (double angleEstimated){
 	double tmpStateObstacle;
 	double tmpSecurityDist;
 	double tmpFactor;
+	double tmpSpeedCmd;
 
 	nh->getParam("/nymeriaStateObstacle", tmpStateObstacle);
 	nh->getParam("/nymeriaSecurityDist", tmpSecurityDist);
@@ -148,7 +149,8 @@ void NymeriaCheckObstacle::regulation (double angleEstimated){
 	double lastCmd = cmd; // init
 	cmd = pilotage();
 	cmd = saturationPente(lastCmd);
-	printf("[NymeriaCheckObstacle::regulation] val cmd = %f\n");
+	saturationCommande(cmd);
+	printf("[NymeriaCheckObstacle::regulation] val cmd = %f\n", cmd);
 	
 	//convertie l'angle en cmd estimé
 	lastAngleEstimated2 = lastAngleEstimated;
@@ -164,7 +166,11 @@ void NymeriaCheckObstacle::regulation (double angleEstimated){
 	// TODO mutex + try catch
 	//NymeriaMutexObstacle::lock();
 	if(nh->hasParam("/nymeriaFactor")){
-		nh->setParam("nymeriaFactor", PID(lastError));
+	  tmpSpeedCmd = PID(lastError);
+	  tmpSpeedCmd = saturationPente(tmpSpeedCmd);
+	  saturationCommande(tmpSpeedCmd);
+		nh->setParam("nymeriaFactor", tmpSpeedCmd);
+		printf("[NymeriaCheckObstacle::regulation] pid(lasterroor) = %f\n", PID(lastError));
 	}
 		//else throw NymeriaParamExc();
 	//NymeriaMutexObstacle::unlock();
@@ -250,4 +256,14 @@ double NymeriaCheckObstacle::saturationPente(double lastCmd){
 	} else {
 		return cmd;
 	}
+}
+
+void NymeriaCheckObstacle::saturationCommande(double& cmd)
+{
+  if(cmd > 1.0){
+    cmd = 1.0;
+  } else if (cmd < -1.0){
+    cmd = -1.0;
+  }
+
 }
