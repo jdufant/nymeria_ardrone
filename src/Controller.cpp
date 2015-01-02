@@ -29,20 +29,25 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+/**
+ * Central functionality of the controller: trigger Nymeria in order to actiate
+ * obstacle detection and avoidance.
+ **/
 void Controller::loop(ros::NodeHandle * n){
+	// TODO augmente it to argument
 	int rate = 50;
 	int errorCode;
 	int lastErrorCode = 0;
+	/* Modifiable loop rate */
 	ros::Rate loop_rate(rate);
 
 	Nymeria nym (n, 100);
-
 	
 	while(ros::ok()){
 
-		// hand over commands to Nymeria
+		/* Trigger Nymeria */
 		errorCode = nym.validateStates();
-
+		/* Interpret return value. */
 		switch (errorCode) {
 			case NymeriaConstants::INIT :
 				if(errorCode != lastErrorCode) printf("init\n");
