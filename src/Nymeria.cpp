@@ -32,13 +32,13 @@ Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
 
 	/* Initialize safeActions. */
 	init_safeActions();
-	
+
 	/* Adapt node handle. */
 	nh = n;
 
 	/* Set parameters shared with all ROS nodes. */
 	init_rosParams(securityDist);
-	
+
 	/* Initialize publishers. */
 	init_publishers();
 
@@ -249,7 +249,6 @@ void Nymeria::init_safeActions(){
 	this->safeActions[15] = NymeriaConstants::I_A_SPEED;
 	this->safeActions[16] = NymeriaConstants::D_A_SPEED;
 	this->safeActions[17] = NymeriaConstants::INIT;
-
 }
 
 /**
@@ -257,8 +256,8 @@ void Nymeria::init_safeActions(){
  * @throws NymeriaInvalidSecurityDistance if entered security distance is negative.
  */
 void Nymeria::init_rosParams(int securityDist){
-	int tmpSecurityDist = -1;
 	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
+
 	/* nymeriaCommand */
 	NymeriaMutexCommand::lock();
 		nh->setParam("nymeriaCommand", 0);
@@ -268,14 +267,14 @@ void Nymeria::init_rosParams(int securityDist){
 	NymeriaMutexObstacle::lock();
 		nh->setParam("nymeriaStateObstacle", -1);
 	NymeriaMutexObstacle::unlock();
-	
+
 	try {
 		/* nymeriaSecurityDist */
 		if(securityDist >= 0){
-			if(nh->hasParam("/nymeriaSecurityDist") && (tmpSecurityDist = getParameter(nymeriaSecurityDist))){
-			
+			if(nh->hasParam("/nymeriaSecurityDist") && (int tmpSecurityDist = getParameter(nymeriaSecurityDist))){
+
 				if(tmpSecurityDist != securityDist){
-					ROS_WARN("Given security distance does not match security distance given in NymeriaCheckObstacle.");
+					ROS_WARN("Given security distance does not match security distance given before.");
 					ROS_WARN("First security distance given will be considered.");
 				}
 			}
@@ -315,14 +314,14 @@ void Nymeria::init_publishers(){
 	this->pub_cmd_reset = nh->advertise<std_msgs::Empty>("ardrone/reset", 10);
 	this->pub_cmd_move = nh->advertise<geometry_msgs::Twist>("cmd_vel", 10);
 }
- 
+
 /**
  * Helper function in order to access ROS parameters (read access).
  * @param str - name of parameter.
  * @return read parameter value, -1 if no parameter is found.
  */
 double Nymeria::getParameter(char * str){
-	double param = 1.0;
+	double param = 1.0; // TODO: don't think, this'll work
 	try{
 		if(nh->getParam(str , param)){}
 		else
@@ -337,31 +336,30 @@ double Nymeria::getParameter(char * str){
 }
 
 /**
- * Entry point of obstactle detection and avoidance.
- * Algorithm analyzes sensor data in the form of distances and decides whether to 
+ * Entry point of obstacle detection and avoidance.
+ * Algorithm analyzes sensor data in the form of distances and decides whether to
  * (1) either stop the drone immediately and let it move backward if applicable
  * (2) or let the drone slow down
  * (3) or process the user's command without acting.
  * @return constant representing processed command or -1, when there has been an obstacle.
  */
 int Nymeria::validateStates(){
-	int tmpCommand;
 	char nymeriaCommand[] = "/nymeriaCommand";
-	tmpCommand = getParameter(nymeriaCommand);
+	int tmpCommand = getParameter(nymeriaCommand);
 
 	/* Moving forward and obstacle possibly in front? */
 	if (!isSafeAction(tmpCommand) && obstaclePossible()){
-		/* (1)Security distance already passed? */
+		/* (1)Security distance already violated? */
 		if(underSecurityDist()){
 			reactionRoutine();
-			return NymeriaConstants::O_FRONT;	
+			return NymeriaConstants::O_FRONT;
 		}
 		/* (2)Anticipating obstacle. */
 		else {
 			slowDown();
-			return NymeriaConstants::SLOW_DOWN; // TODO maybe add a new constant SLOW_DOWN
+			return NymeriaConstants::SLOW_DOWN;
 		}
-		
+
 	}
 	/* (3)Forward command. */
 	else {
@@ -392,7 +390,7 @@ bool Nymeria::isSafeAction(int cmd){
  * 	   false: no, no obstacle to be likely in front.
  */
 bool Nymeria::obstaclePossible(){
-	//TODO : harcoded if actual dist < security dist +50
+	//TODO : hardcoded if actual dist < security dist +50
 	char nymeriaStateObstacle[] = "/nymeriaStateObstacle";
 	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
 	return  ((getParameter(nymeriaStateObstacle) < (getParameter(nymeriaSecurityDist) + 50))
@@ -409,12 +407,12 @@ bool Nymeria::underSecurityDist(){
 	int tmpSecurityDist = -1;
 	char nymeriaStateObstacle[] = "/nymeriaStateObstacle";
 	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
-	
+
 	tmpSecurityDist = getParameter(nymeriaSecurityDist);
 	tmpStateObstacle = getParameter(nymeriaStateObstacle);
 
 	return ((tmpStateObstacle < tmpSecurityDist)
-		&& (tmpStateObstacle >= 0.0));	
+		&& (tmpStateObstacle >= 0.0));
 }
 
 /**
@@ -474,12 +472,12 @@ int Nymeria::triggerAction(int cmd, double factor){
 	case NymeriaConstants::TAKEOFF:
 		ROS_INFO("TAKEOFF");
 		pub_cmd_takeoff.publish(empty_msg);
-		// jjjwhile(navData.state == 6);
+		// jjjwhile(navData.state == 6); TODO
 		break;
 	case NymeriaConstants::LAND:
 		ROS_INFO("LAND");
 		pub_cmd_land.publish(empty_msg);
-		// while(navData.state == 8);
+		// while(navData.state == 8); TODO
 		break;
 	case NymeriaConstants::E_STOP:
 		ROS_INFO("E_STOP");
@@ -506,10 +504,10 @@ int Nymeria::triggerAction(int cmd, double factor){
 		break;
 
 	default:
-		ROS_WARN("Command unknown\n");
+		ROS_WARN("Command unknown\n"); // TODO: warning, no further reaction?
 		break;
 	}
-	
+
 	move_msg.linear.x *= speed*factor;
 	move_msg.linear.y *= speed;
 	move_msg.linear.z *= speed;
@@ -526,7 +524,7 @@ int Nymeria::triggerAction(int cmd, double factor){
 	/* Reinitialize move_msg. */
 	init_move_msg();
 
-	lastCmd = cmd;
+	this->lastCmd = cmd;
 
 	return cmd;
 }
@@ -536,7 +534,7 @@ int Nymeria::triggerAction(int cmd, double factor){
  * keep the security distance.
  */
 void Nymeria::reactionRoutine(){
-	ROS_INFO("reaction routine");
+	ROS_INFO("reaction routine"); //TODO: necessary? -> performance
 	triggerAction(NymeriaConstants::STOP);
 	keepSecurityDistance();
 }
@@ -545,16 +543,16 @@ void Nymeria::reactionRoutine(){
  * Method in order to keep security distance by moving backward if necessary.
  */
 void Nymeria::keepSecurityDistance(){
-	int tmpCommand;
 	char nymeriaCommand[] = "/nymeriaCommand";
-
-	tmpCommand = getParameter(nymeriaCommand);
+	int tmpCommand = getParameter(nymeriaCommand);
 
 	if(underSecurityDist())
 		triggerAction(NymeriaConstants::M_BACKWARD);
-	
+
+	/* Keep moving backwards until security distance is reached. */
 	while(underSecurityDist());
-	
+
+	/* Then stop. */
 	triggerAction(NymeriaConstants::STOP);
 }
 
@@ -570,5 +568,4 @@ void Nymeria::slowDown(){
 		triggerAction(this->lastCmd, getParameter(nymeriaFactor));
 		this->lastCmd = getParameter(nymeriaCommand);
 	}
-	return;
 }
