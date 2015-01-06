@@ -256,6 +256,7 @@ void Nymeria::init_safeActions(){
  * @throws NymeriaInvalidSecurityDistance if entered security distance is negative.
  */
 void Nymeria::init_rosParams(int securityDist){
+        int tmpSecurityDist;
 	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
 
 	/* nymeriaCommand */
@@ -271,7 +272,7 @@ void Nymeria::init_rosParams(int securityDist){
 	try {
 		/* nymeriaSecurityDist */
 		if(securityDist >= 0){
-			if(nh->hasParam("/nymeriaSecurityDist") && (int tmpSecurityDist = getParameter(nymeriaSecurityDist))){
+			if(nh->hasParam("/nymeriaSecurityDist") && (tmpSecurityDist = getParameter(nymeriaSecurityDist))){
 
 				if(tmpSecurityDist != securityDist){
 					ROS_WARN("Given security distance does not match security distance given before.");
@@ -285,8 +286,8 @@ void Nymeria::init_rosParams(int securityDist){
 			}
 		}
 		else
-			throw NymeriaInvalidSecurityDistance();
-		}
+		  throw NymeriaInvalidSecurityDistance();
+	}
 		catch(NymeriaExceptions& error){
 			/* Display error message. */
 			fprintf(stderr, "%s", error.what());
@@ -314,6 +315,7 @@ void Nymeria::init_publishers(){
 	this->pub_cmd_reset = nh->advertise<std_msgs::Empty>("ardrone/reset", 10);
 	this->pub_cmd_move = nh->advertise<geometry_msgs::Twist>("cmd_vel", 10);
 }
+
 
 /**
  * Helper function in order to access ROS parameters (read access).
@@ -569,3 +571,4 @@ void Nymeria::slowDown(){
 		this->lastCmd = getParameter(nymeriaCommand);
 	}
 }
+

@@ -5,17 +5,18 @@
 #include <nymeria_ardrone/NymeriaMutexSecurityDistance.h>
 
 double pitch = 0.0;
+int droneState = 0;
 
 void stateDroneCallback(const ardrone_autonomy::Navdata& data){
 	printf("%f\n", data.rotY);
 	pitch = data.rotY;
+	droneState = data.state;
 }
 
 NymeriaCheckObstacle::NymeriaCheckObstacle(){}
 NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist){
 	int tmpSecurityDist = -1;
 
-	//pitch = 0.0;
 	sumError = 0.0;
 	error = 0.0;
 	lastCmdEstimated = 0.0;
@@ -30,26 +31,29 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 	this->securityDist = securityDist;
 
 	try {
-		if(securityDist >= 0.0){
-			if(nh->hasParam("/nymeriaSecurityDist") && (nh->getParam("/nymeriaSecurityDist", tmpSecurityDist))){
-				
-				if(tmpSecurityDist != securityDist){
-					ROS_WARN("Given security distance does not match security distance given in Nymeria.");
-					ROS_WARN("First security distance given will be considered.");
-				}
-			}
-			else {
-				NymeriaMutexSecurityDistance::lock();
-				nh->setParam("nymeriaSecurityDist", securityDist);
-				NymeriaMutexSecurityDistance::unlock();
-			}
-		}
-		else
-			throw NymeriaInvalidSecurityDistance();
+	  if(securityDist >= 0.0){
 
-		//NymeriaMutexObstacle::lock();
-			nh->setParam("nymeriaFactor", 1.0);
-		//NymeriaMutexObstacle::unlock();
+	    if(nh->hasParam("/nymeriaSecurityDist") && (nh->getParam("/nymeriaSecurityDist", tmpSecurityDist))){
+	      
+	      if(tmpSecurityDist != securityDist){
+		ROS_WARN("Given security distance does not match security distance given in Nymeria.");
+		ROS_WARN("First security distance given will be considered.");
+	      }
+
+	    }
+	    else {
+	      NymeriaMutexSecurityDistance::lock();
+	      nh->setParam("nymeriaSecurityDist", securityDist);
+	      NymeriaMutexSecurityDistance::unlock();
+	    }
+	    
+	  }
+	  else
+	    throw NymeriaInvalidSecurityDistance();
+
+	  //NymeriaMutexObstacle::lock();
+	  nh->setParam("nymeriaFactor", 1.0);
+	  //NymeriaMutexObstacle::unlock();
 
 
 
@@ -124,8 +128,6 @@ void NymeriaCheckObstacle::setSecurityDist(int sd){
 }
 
 
-
-// TODO not valid for doxygen
 /**
 * Pilote le drone
 *
@@ -219,9 +221,7 @@ double NymeriaCheckObstacle::PID (double lastError){
 	double Kp = 0.1105;
 	double Ki = 1.5935;
 	double Kd = 0.2541;
-	
-	//commande = Kp*P + Ki*I + Kd*D	
-	//commande = Kp * erreur + Ki * somme_erreurs + Kd * (erreur - erreur_précédente)
+
 	return Kp*error + Ki*sumError + Kd*(error - lastError);
 }
 
