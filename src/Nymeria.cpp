@@ -22,10 +22,13 @@ Nymeria::Nymeria(){};
  * Constructor in order to create a meaningful object of the type Nymeria. Meaningful in terms of functionality:
  * It provides all navigation commands for the drone whilst ensuring obstacle protection and avoidance.
  */
-Nymeria::Nymeria(ros::NodeHandle * n,  int securityDist){
+Nymeria::Nymeria(ros::NodeHandle * n,  double securityDist){
 
-	speed = 0.05;
-	lastCmd = 0;
+	maxLinearSpeed = 1.0;
+	maxAngularSpeed = 1.0;
+	linearSpeed = 0.05; // TODO, should be 1.0
+	angularSpeed = 0.05; // TODO, should be 1.0
+	lastCmd = NymeriaConstants::INIT;
 
 	/* Initialize move_msg. */
 	init_move_msg();
@@ -153,22 +156,45 @@ void Nymeria::emergencyStop(){
 	nh->setParam("nymeriaCommand", NymeriaConstants::E_STOP);
 	NymeriaMutexCommand::unlock();
 }
+
 /**
  * Command in order to increase the maximum
- * speed by 10%.
+ * linear speed by 10%.
  */
-void Nymeria::increaseMaxSpeed(){
+void Nymeria::increaseMaxLinearSpeed(){
 	NymeriaMutexCommand::lock();
-	nh->setParam("nymeriaCommand", NymeriaConstants::I_M_SPEED);
+	nh->setParam("nymeriaCommand", NymeriaConstants::I_M_L_SPEED);
 	NymeriaMutexCommand::unlock();
 }
+
 /**
  * Command in order to decrease the maximum
- * speed by 10%.
+ * linear speed by 10%.
  */
-void Nymeria::decreaseMaxSpeed(){
+void Nymeria::decreaseMaxLinearSpeed(){
 	NymeriaMutexCommand::lock();
-	nh->setParam("nymeriaCommand", NymeriaConstants::D_M_SPEED);
+	nh->setParam("nymeriaCommand", NymeriaConstants::D_M_L_SPEED);
+	NymeriaMutexCommand::unlock();
+}
+
+
+/**
+ * Command in order to increase the maximum
+ * angular speed by 10%.
+ */
+void Nymeria::increaseMaxAngularSpeed(){
+	NymeriaMutexCommand::lock();
+	nh->setParam("nymeriaCommand", NymeriaConstants::I_M_A_SPEED);
+	NymeriaMutexCommand::unlock();
+}
+
+/**
+ * Command in order to decrease the maximum
+ * angular speed by 10%.
+ */
+void Nymeria::decreaseMaxAngularSpeed(){
+	NymeriaMutexCommand::lock();
+	nh->setParam("nymeriaCommand", NymeriaConstants::D_M_A_SPEED);
 	NymeriaMutexCommand::unlock();
 }
 
@@ -213,19 +239,68 @@ void Nymeria::decreaseAngularSpeed(){
 	NymeriaMutexCommand::unlock();
 }
 
+/**
+ * Getter function for security distance,
+ * in order to permit the user to change its value.
+ */
+double Nymeria::getSecurityDist(){
+	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
+	return(getParameter(nymeriaSecurityDist));
+}
+
+/**
+ * Setter function for security distance,
+ * in order to permit the user to change its value.
+ */
+void Nymeria::setSecurityDist(double secDist){
+	NymeriaMutexSecurityDistance::lock();
+	nh->setParam("nymeriaSecurityDist", secDist);
+	NymeriaMutexSecurityDistance::unlock();
+}
+
+/**
+TODO
+ */
+double Nymeria::getMaxLinearSpeed(){
+	return(this->maxLinearSpeed);
+}
+
+/**
+TODO
+ */
+void Nymeria::setMaxLinearSpeed(double speed){
+	this->maxLinearSpeed = speed;
+}
+
+/**
+TODO
+ */
+double Nymeria::getMaxAngularSpeed(){
+	return(this->maxAngularSpeed);
+}
+
+/**
+TODO
+ */
+void Nymeria::setMaxAngularSpeed(double speed){
+	this->maxAngularSpeed = speed;
+}
+
+/**
+TODO
+ */
+double Nymeria::getLinearSpeed(){
+	return(this->linearSpeed);
+}
+
+/**
+TODO
+ */
+double Nymeria::getAngularSpeed(){
+	return(this->angularSpeed);
+}
 
 /* PRIVATE methods */
-/**
- * Helper function in order to forward user's command
- * to drone.
- * Sets drone's navigation state in transmitted message
- *
- * @param data - navigation state.
- */
-
-// void Nymeria::stateDroneCallback (const ardrone_autonomy::Navdata& data){
-//  	printf("%f\n", data.rotY);
-// }
 
 /**
  * Helper function in order to initialize the array of safe actions.
@@ -242,13 +317,15 @@ void Nymeria::init_safeActions(){
 	this->safeActions[8] = NymeriaConstants::TAKEOFF;
 	this->safeActions[9] = NymeriaConstants::LAND;
 	this->safeActions[10] = NymeriaConstants::E_STOP;
-	this->safeActions[11] = NymeriaConstants::I_M_SPEED;
-	this->safeActions[12] = NymeriaConstants::D_M_SPEED;
-	this->safeActions[13] = NymeriaConstants::I_L_SPEED;
-	this->safeActions[14] = NymeriaConstants::D_L_SPEED;
-	this->safeActions[15] = NymeriaConstants::I_A_SPEED;
-	this->safeActions[16] = NymeriaConstants::D_A_SPEED;
-	this->safeActions[17] = NymeriaConstants::INIT;
+	this->safeActions[11] = NymeriaConstants::I_M_L_SPEED;
+	this->safeActions[12] = NymeriaConstants::D_M_L_SPEED;
+	this->safeActions[13] = NymeriaConstants::D_M_A_SPEED;
+	this->safeActions[14] = NymeriaConstants::D_M_A_SPEED;
+	this->safeActions[15] = NymeriaConstants::I_L_SPEED;
+	this->safeActions[16] = NymeriaConstants::D_L_SPEED;
+	this->safeActions[17] = NymeriaConstants::I_A_SPEED;
+	this->safeActions[18] = NymeriaConstants::D_A_SPEED;
+	this->safeActions[19] = NymeriaConstants::INIT;
 }
 
 /**
@@ -474,35 +551,71 @@ int Nymeria::triggerAction(int cmd, double factor){
 	case NymeriaConstants::TAKEOFF:
 		ROS_INFO("TAKEOFF");
 		pub_cmd_takeoff.publish(empty_msg);
-		// jjjwhile(navData.state == 6); TODO
 		break;
 	case NymeriaConstants::LAND:
 		ROS_INFO("LAND");
 		pub_cmd_land.publish(empty_msg);
-		// while(navData.state == 8); TODO
 		break;
 	case NymeriaConstants::E_STOP:
 		ROS_INFO("E_STOP");
 		pub_cmd_reset.publish(empty_msg);
 		break;
 
-	case NymeriaConstants::I_M_SPEED:
-		speed += 0.1;
+	case NymeriaConstants::I_M_L_SPEED:
+		ROS_INFO("INCREASE MAX LINEAR SPEED");
+		if(inRange(0.0, 1.0, maxLinearSpeed + 0.1))
+			maxLinearSpeed += 0.1;
+		else
+			ROS_WARN("The given speed is out of bounds.");
 		break;
-	case NymeriaConstants::D_M_SPEED:
-		speed -= 0.1;
+	case NymeriaConstants::D_M_L_SPEED:
+		ROS_INFO("DECREASE MAX LINEAR SPEED");
+		if(inRange(0.0, 1.0, maxLinearSpeed - 0.1))
+			maxLinearSpeed -= 0.1;
+		else
+			ROS_WARN("The given speed is out of bounds.");
+		break;
+	case NymeriaConstants::I_M_A_SPEED:
+		ROS_INFO("INCREASE MAX ANGULAR SPEED");
+		if(inRange(0.0, 1.0, maxAngularSpeed + 0.1))
+			maxAngularSpeed += 0.1;
+		else
+			ROS_WARN("The given speed is out of bounds.");
+		break;
+	case NymeriaConstants::D_M_A_SPEED:
+		ROS_INFO("DECREASE MAX ANGULAR SPEED");
+		if(inRange(0.0, 1.0, maxAngularSpeed - 0.1))
+			maxAngularSpeed -= 0.1;
+		else
+			ROS_WARN("The given speed is out of bounds.");
 		break;
 	case NymeriaConstants::I_L_SPEED:
-		speed += 0.1;
+		ROS_INFO("INCREASE LINEAR SPEED");
+		if(inRange(0.0, maxLinearSpeed, linearSpeed + 0.1))
+			linearSpeed += 0.1;
+		else
+			ROS_WARN("The given speed is out of bounds.");
 		break;
 	case NymeriaConstants::D_L_SPEED:
-		speed -= 0.1;
+		ROS_INFO("INCREASE LINEAR SPEED");
+		if(inRange(-1.0, maxLinearSpeed, linearSpeed - 0.1))
+			linearSpeed -= 0.1;
+		else
+			ROS_WARN("The given speed is out of bounds.");
 		break;
 	case NymeriaConstants::I_A_SPEED:
-		speed += 0.1;
+		ROS_INFO("INCREASE ANGULAR SPEED");
+		if(inRange(-1.0, maxAngularSpeed, angularSpeed + 0.1))
+			angularSpeed += 0.1;
+		else
+			ROS_WARN("The given speed is out of bounds.");
 		break;
 	case NymeriaConstants::D_A_SPEED:
-		speed -= 0.1;
+		ROS_INFO("DECREASE ANGULAR SPEED");
+		if(inRange(-1.0, maxAngularSpeed, angularSpeed - 0.1))
+			angularSpeed -= 0.1;
+		else
+			ROS_WARN("The given speed is out of bounds.");
 		break;
 
 	default:
@@ -510,18 +623,14 @@ int Nymeria::triggerAction(int cmd, double factor){
 		break;
 	}
 
-	move_msg.linear.x *= speed*factor;
-	move_msg.linear.y *= speed;
-	move_msg.linear.z *= speed;
-	move_msg.angular.x *= speed;
-	move_msg.angular.y *= speed;
-	move_msg.angular.z *= speed;
+	move_msg.linear.x *= linearSpeed * factor;
+	move_msg.linear.y *= linearSpeed;
+	move_msg.linear.z *= linearSpeed;
+	move_msg.angular.x *= linearSpeed;
+	move_msg.angular.y *= linearSpeed;
+	move_msg.angular.z *= angularSpeed;
 
-	printf("move_msg.linear.x = %f; factor = %f\n", move_msg.linear.x, factor);
 	pub_cmd_move.publish(move_msg);
-	ROS_INFO("Move :\nlinear.x = %f\nlinear.y = %f\nlinear.z = %f\nangular.x = %f\nangular.y = %f\nangular.z = %f\n", 
-			move_msg.linear.x, move_msg.linear.y, move_msg.linear.z,
-			move_msg.angular.x,move_msg.angular.y,move_msg.angular.z);
 
 	/* Reinitialize move_msg. */
 	init_move_msg();
@@ -536,7 +645,6 @@ int Nymeria::triggerAction(int cmd, double factor){
  * keep the security distance.
  */
 void Nymeria::reactionRoutine(){
-	ROS_INFO("reaction routine"); //TODO: necessary? -> performance
 	triggerAction(NymeriaConstants::STOP);
 	keepSecurityDistance();
 }
@@ -570,5 +678,16 @@ void Nymeria::slowDown(){
 		triggerAction(this->lastCmd, getParameter(nymeriaFactor));
 		this->lastCmd = getParameter(nymeriaCommand);
 	}
+}
+
+/**
+ * Helper functions in order to determine,
+ * whether a given value is in a given interval.
+ * @param min: left border of interval.
+ * @param max: right border of interval.
+ * @param value: value to be tested.
+ */
+bool Nymeria::inRange(double min, double max, double value){
+	return(value >= min && value <= max);
 }
 

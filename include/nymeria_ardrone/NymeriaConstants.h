@@ -24,13 +24,15 @@ class NymeriaConstants{
 		static const int TAKEOFF = 10;
 		static const int LAND = 11;
 		static const int E_STOP = 12;
-		static const int I_M_SPEED = 13;
-		static const int D_M_SPEED = 14;
-		static const int I_L_SPEED = 15;
-		static const int D_L_SPEED = 16;
-		static const int I_A_SPEED = 17;
-		static const int D_A_SPEED = 18;
-		static const int SLOW_DOWN = 20;
+		static const int I_M_L_SPEED = 13;
+		static const int D_M_L_SPEED = 14;
+		static const int I_M_A_SPEED = 15;
+		static const int D_M_A_SPEED = 16;
+		static const int I_L_SPEED = 17;
+		static const int D_L_SPEED = 18;
+		static const int I_A_SPEED = 19;
+		static const int D_A_SPEED = 20;
+		static const int SLOW_DOWN = 21;
 };
 
 #endif
