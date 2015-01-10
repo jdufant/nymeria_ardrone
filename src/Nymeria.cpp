@@ -21,6 +21,8 @@ Nymeria::Nymeria(){};
 /**
  * Constructor in order to create a meaningful object of the type Nymeria. Meaningful in terms of functionality:
  * It provides all navigation commands for the drone whilst ensuring obstacle protection and avoidance.
+ * @param n NodeHandle permitting to relate ROS-node.
+ * @param securityDist security distance. // TODO necessary?
  */
 Nymeria::Nymeria(ros::NodeHandle * n,  double securityDist){
 
@@ -212,7 +214,6 @@ void Nymeria::increaseLinearSpeed(){
  * Command in order to decrease the linear
  * speed by 10%.
  */
-
 void Nymeria::decreaseLinearSpeed(){
 	NymeriaMutexCommand::lock();
 	nh->setParam("nymeriaCommand", NymeriaConstants::D_L_SPEED);
@@ -241,7 +242,8 @@ void Nymeria::decreaseAngularSpeed(){
 
 /**
  * Getter function for security distance,
- * in order to permit the user to change its value.
+ * in order to permit the user to retain its current value.
+ * @return security distance.
  */
 double Nymeria::getSecurityDist(){
 	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
@@ -251,6 +253,7 @@ double Nymeria::getSecurityDist(){
 /**
  * Setter function for security distance,
  * in order to permit the user to change its value.
+ * @param secDist security distance.
  */
 void Nymeria::setSecurityDist(double secDist){
 	NymeriaMutexSecurityDistance::lock();
@@ -259,42 +262,54 @@ void Nymeria::setSecurityDist(double secDist){
 }
 
 /**
-TODO
+ * Getter function for maximum linear speed,
+ * in order to permit the user to retain its current value.
+ * @return maximum linear speed
  */
 double Nymeria::getMaxLinearSpeed(){
 	return(this->maxLinearSpeed);
 }
 
 /**
-TODO
+ * Setter function for maximum linear speed,
+ * in order to permit the user to change its value.
+ * @param speed maximum linear speed.
  */
 void Nymeria::setMaxLinearSpeed(double speed){
 	this->maxLinearSpeed = speed;
 }
 
 /**
-TODO
+ * Getter function for maximum angular speed,
+ * in order to permit the user to retain its current value.
+ * @return maximum angular speed
  */
 double Nymeria::getMaxAngularSpeed(){
 	return(this->maxAngularSpeed);
 }
 
 /**
-TODO
+ * Setter function for maximum angular speed,
+ * in order to permit the user to change its value.
+ * @param speed maximum angular speed.
  */
 void Nymeria::setMaxAngularSpeed(double speed){
 	this->maxAngularSpeed = speed;
 }
 
 /**
-TODO
+ * Getter function for linear speed,
+ * in order to permit the user to retain its current value.
+ * @return linear speed
  */
 double Nymeria::getLinearSpeed(){
 	return(this->linearSpeed);
 }
 
 /**
-TODO
+ * Getter function for angular speed,
+ * in order to permit the user to retain its current value.
+ * @return angular speed
  */
 double Nymeria::getAngularSpeed(){
 	return(this->angularSpeed);
@@ -329,7 +344,9 @@ void Nymeria::init_safeActions(){
 }
 
 /**
- * Helper function in order to initialize ROS parameters nymeriaCommand, nymeriaStateObstacle, nymeriaSecurityDist.
+ * Helper function in order to initialize ROS parameters nymeriaCommand,
+ * nymeriaStateObstacle, nymeriaSecurityDist.
+ * @param securityDist security distance. // TODO necessary?
  * @throws NymeriaInvalidSecurityDistance if entered security distance is negative.
  */
 void Nymeria::init_rosParams(int securityDist){
@@ -686,8 +703,9 @@ void Nymeria::slowDown(){
  * @param min: left border of interval.
  * @param max: right border of interval.
  * @param value: value to be tested.
+ * @return true: yes, value is in given interval.
+ * 	   false: no, value is not in given interval.
  */
 bool Nymeria::inRange(double min, double max, double value){
 	return(value >= min && value <= max);
 }
-
