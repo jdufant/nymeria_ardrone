@@ -128,8 +128,9 @@ target_link_libraries(
 ## Declare a cpp executable
 add_executable(nymeria_command		src/TeleopKeyboard.cpp)
 add_executable(nymeria_sensor_interface	src/SensorInterface.cpp)
-add_executable(nymeria_syncSensor_interface	src/SyncSensorInterface.cpp)
+add_executable(nymeria_syncSensor_interface	test/TestSyncSensorInterface.cpp)
 add_executable(nymeria_controller	src/Controller.cpp)
+add_executable(nymeria_test_functionnal	test/functionnal_tests.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -140,6 +141,7 @@ target_link_libraries (nymeria_command nymeria_ardrone ${catkin_LIBRARIES})
 target_link_libraries (nymeria_sensor_interface nymeria_ardrone ${catkin_LIBRARIES})
 target_link_libraries (nymeria_syncSensor_interface nymeria_ardrone ${catkin_LIBRARIES})
 target_link_libraries (nymeria_controller nymeria_ardrone ${catkin_LIBRARIES} )
+target_link_libraries (nymeria_test_functionnal nymeria_ardrone ${catkin_LIBRARIES} )
 
 #############
 ## Install ##
