@@ -11,33 +11,29 @@ class NymeriaCheckObstacle
 	public:
 
 		NymeriaCheckObstacle();
-		NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist);
+		NymeriaCheckObstacle(ros::NodeHandle * n);
 
 		void inputCurFrontDist(int cfd);
 
-		int getSecurityDist();
-		void setSecurityDist(int sd);
+		double getSecurityDist();
+		void setSecurityDist(double secDist);
+		double getSensorMaxRange();
+		void setSensorMaxRange(double range);
 
 	private:
-		ros::NodeHandle * nh;
-
-		//double sumError; 				//sum error for integrator
-		double error; 					//error  
-		//double lastEstimatedCmd;		//	
-		//double lastEstimatedAngle;	//for the old "rebouclage", not useful anymore
-		//double lastAngleEstimated2;	//for the old "rebouclage", not useful anymore
-		//double angleEstimated;		//for rebouclage, to get the estimated command
-		//double factor;				//speed factor after regulation
+	
+		double error;
+		double sensorMaxRange;
 
 		ros::Subscriber sub_navdata;
-
-		int securityDist;
+		ros::NodeHandle * nh;
 
 		void regulation (double angleEstimated, double userCmd);
 		double pilotage (const double& distToObstacle, const double& securityDist, const double& userCmd);
 		double PID (const double lastError, const double estimatedCmd);
 		double rebouclage(const double& angleEstimated);
 		double saturationPente(const double lastCmd, const double param_saturation, double& currentCmd);
+
 		void saturationCommande(double& cmd);
 		// TODO exc
 };

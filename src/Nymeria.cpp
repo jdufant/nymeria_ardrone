@@ -22,9 +22,8 @@ Nymeria::Nymeria(){};
  * Constructor in order to create a meaningful object of the type Nymeria. Meaningful in terms of functionality:
  * It provides all navigation commands for the drone whilst ensuring obstacle protection and avoidance.
  * @param n NodeHandle permitting to relate ROS-node.
- * @param securityDist security distance. // TODO necessary?
  */
-Nymeria::Nymeria(ros::NodeHandle * n,  double securityDist){
+Nymeria::Nymeria(ros::NodeHandle * n){
 
 	maxLinearSpeed = 1.0;
 	maxAngularSpeed = 1.0;
@@ -42,7 +41,7 @@ Nymeria::Nymeria(ros::NodeHandle * n,  double securityDist){
 	nh = n;
 
 	/* Set parameters shared with all ROS nodes. */
-	init_rosParams(securityDist);
+	init_rosParams();
 
 	/* Initialize publishers. */
 	init_publishers();
@@ -256,15 +255,26 @@ double Nymeria::getSecurityDist(){
  * @param secDist security distance.
  */
 void Nymeria::setSecurityDist(double secDist){
-	NymeriaMutexSecurityDistance::lock();
-	nh->setParam("nymeriaSecurityDist", secDist);
-	NymeriaMutexSecurityDistance::unlock();
+	try {
+		if (secDist >= 0){
+			NymeriaMutexSecurityDistance::lock();
+			nh->setParam("nymeriaSecurityDist", secDist);
+			NymeriaMutexSecurityDistance::unlock();
+		}
+		else
+			throw NymeriaInvalidSecurityDistance();
+
+	} catch(NymeriaExceptions& error){
+		/* Display error message. */
+		// TODO: wrap as ROS msg
+		fprintf(stderr, "%s", error.what());
+	}
 }
 
 /**
  * Getter function for maximum linear speed,
  * in order to permit the user to retain its current value.
- * @return maximum linear speed
+ * @return maximum linear speed.
  */
 double Nymeria::getMaxLinearSpeed(){
 	return(this->maxLinearSpeed);
@@ -273,10 +283,27 @@ double Nymeria::getMaxLinearSpeed(){
 /**
  * Setter function for maximum linear speed,
  * in order to permit the user to change its value.
- * @param speed maximum linear speed.
+ * @param speed - maximum linear speed.
  */
 void Nymeria::setMaxLinearSpeed(double speed){
 	this->maxLinearSpeed = speed;
+}
+
+/**
+ * Getter function for current linear speed.
+ * @return current linear speed.
+ */
+double Nymeria::getLinearSpeed(){
+	return(this->linearSpeed);
+}
+
+/**
+ * Setter function for current linear speed,
+ * in order to permit the user to change its value.
+ * @param speed - linear speed.
+ */
+void Nymeria::setLinearSpeed(double speed){
+	this->linearSpeed = speed;
 }
 
 /**
@@ -291,19 +318,10 @@ double Nymeria::getMaxAngularSpeed(){
 /**
  * Setter function for maximum angular speed,
  * in order to permit the user to change its value.
- * @param speed maximum angular speed.
+ * @param speed - maximum angular speed.
  */
 void Nymeria::setMaxAngularSpeed(double speed){
 	this->maxAngularSpeed = speed;
-}
-
-/**
- * Getter function for linear speed,
- * in order to permit the user to retain its current value.
- * @return linear speed
- */
-double Nymeria::getLinearSpeed(){
-	return(this->linearSpeed);
 }
 
 /**
@@ -346,46 +364,32 @@ void Nymeria::init_safeActions(){
 /**
  * Helper function in order to initialize ROS parameters nymeriaCommand,
  * nymeriaStateObstacle, nymeriaSecurityDist.
- * @param securityDist security distance. // TODO necessary?
- * @throws NymeriaInvalidSecurityDistance if entered security distance is negative.
  */
-void Nymeria::init_rosParams(int securityDist){
-        int tmpSecurityDist;
+void Nymeria::init_rosParams(){
+        double tmpSecurityDist;
 	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
 
 	/* nymeriaCommand */
 	NymeriaMutexCommand::lock();
-		nh->setParam("nymeriaCommand", 0);
+		nh->setParam("nymeriaCommand", NymeriaConstants::INIT);
 	NymeriaMutexCommand::unlock();
 
 	/* nymeriaStateObstacle */
 	NymeriaMutexObstacle::lock();
-		nh->setParam("nymeriaStateObstacle", -1);
+		nh->setParam("nymeriaStateObstacle", -1.0);
 	NymeriaMutexObstacle::unlock();
 
-	try {
-		/* nymeriaSecurityDist */
-		if(securityDist >= 0){
-			if(nh->hasParam("/nymeriaSecurityDist") && (tmpSecurityDist = getParameter(nymeriaSecurityDist))){
+	if(this->getParameter(nymeriaSecurityDist)){
 
-				if(tmpSecurityDist != securityDist){
-					ROS_WARN("Given security distance does not match security distance given before.");
-					ROS_WARN("First security distance given will be considered.");
-				}
-			}
-			else {
-				NymeriaMutexSecurityDistance::lock();
-				nh->setParam("nymeriaSecurityDist", securityDist);
-				NymeriaMutexSecurityDistance::unlock();
-			}
+		if(tmpSecurityDist != 100.0){
+			ROS_WARN("Current security distance has been overwritten.");
 		}
-		else
-		  throw NymeriaInvalidSecurityDistance();
+
 	}
-		catch(NymeriaExceptions& error){
-			/* Display error message. */
-			fprintf(stderr, "%s", error.what());
-		}
+
+	NymeriaMutexSecurityDistance::lock();
+		nh->setParam("nymeriaSecurityDist", 100.0);
+	NymeriaMutexSecurityDistance::unlock();
 }
 
 /**
@@ -486,10 +490,8 @@ bool Nymeria::isSafeAction(int cmd){
  * 	   false: no, no obstacle to be likely in front.
  */
 bool Nymeria::obstaclePossible(){
-	//TODO : hardcoded if actual dist < security dist +50
 	char nymeriaStateObstacle[] = "/nymeriaStateObstacle";
-	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
-	return  ((getParameter(nymeriaStateObstacle) < (getParameter(nymeriaSecurityDist) + 50))
+	return  ((getParameter(nymeriaStateObstacle) <= (NymeriaConstants::ANTICIPATING_OBSTACLE_DISTANCE))
 	       &&(getParameter(nymeriaStateObstacle) >= 0.0));
 }
 

@@ -35,19 +35,17 @@ int main(int argc, char **argv)
 
 void SensorInterface::cutBuffer(char* bufferIn, int size, int& valeur) {
   
-  int i=0;
-  char tmp_buffer[BUFFER_SIZE];
-  while (i < size){
-    if (bufferIn[i] == 'x')
-      break;
- 
-    else
-      tmp_buffer[i] = bufferIn[i];
+	int i=0;
+	char tmp_buffer[BUFFER_SIZE];
+	while (i < size){
+		if (bufferIn[i] == 'x')
+			break;
+		else
+			tmp_buffer[i] = bufferIn[i];
+		i++;
+	}
 
-    i++;
-  }
-
-  valeur = atoi(tmp_buffer);
+	valeur = atoi(tmp_buffer);
 }
 
 void SensorInterface::loop(ros::NodeHandle * n){
@@ -56,8 +54,7 @@ void SensorInterface::loop(ros::NodeHandle * n){
 	int cutValue = 0;
 	ros::Rate loop_rate(rate);
 
-	// 80 cm security distance
-	NymeriaCheckObstacle nco(n, 100);
+	NymeriaCheckObstacle nco(n);
 
 	char message[BUFFER_SIZE];
 	int nb_char;
@@ -71,14 +68,14 @@ void SensorInterface::loop(ros::NodeHandle * n){
 	
 		nb_char = client.recv(message, BUFFER_SIZE);
 		if (nb_char != 0)
-		  cutBuffer(message, nb_char, cutValue);
+		 	cutBuffer(message, nb_char, cutValue);
 		
 		if(nb_char > 0)
 		  printf("Recu %d char : %d__", nb_char, cutValue);
 
 		printf("\n");
 		
-		if (cutValue >=0 && cutValue < 350)
+		if (cutValue >=0 && cutValue < nco.getSensorMaxRange())
 		  nco.inputCurFrontDist(cutValue);
 
 	 	loop_rate.sleep();

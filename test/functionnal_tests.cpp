@@ -58,7 +58,7 @@ void NymeriaTest::loop(ros::NodeHandle * n){
 	int i(0);
 	bool loopExit(false);
 
-	Nymeria nym (n, 100);
+	Nymeria nym (n);
 	
 	//Take off for testing
 	// n->setParam("nymeriaCommand", 10);

@@ -19,7 +19,7 @@ class Nymeria
 	friend class Controller;
 	public:
 		Nymeria();
-		Nymeria(ros::NodeHandle * n, double securityDist);
+		Nymeria(ros::NodeHandle * n);
 		void moveForward();
 		void moveBackward();
 		void moveLeft();
@@ -44,9 +44,10 @@ class Nymeria
 		void setSecurityDist(double secDist);
 		double getMaxLinearSpeed();
 		void setMaxLinearSpeed(double speed);
+		double getLinearSpeed();
+		void setLinearSpeed(double speed);
 		double getMaxAngularSpeed();
 		void setMaxAngularSpeed(double speed);
-		double getLinearSpeed();
 		double getAngularSpeed();
 		
 	private:
@@ -70,7 +71,7 @@ class Nymeria
 
 		/* Initialization helper functions; */
 		void init_safeActions();
-		void init_rosParams(int securityDist);
+		void init_rosParams();
 		void init_move_msg();
 		void init_publishers();
 		
