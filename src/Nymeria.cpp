@@ -22,7 +22,6 @@ Nymeria::Nymeria(){};
  * Constructor in order to create a meaningful object of the type Nymeria. Meaningful in terms of functionality:
  * It provides all navigation commands for the drone whilst ensuring obstacle protection and avoidance.
  * @param n NodeHandle permitting to relate ROS-node.
- * @param securityDist security distance. // TODO necessary?
  */
 Nymeria::Nymeria(ros::NodeHandle * n){
 
@@ -491,10 +490,8 @@ bool Nymeria::isSafeAction(int cmd){
  * 	   false: no, no obstacle to be likely in front.
  */
 bool Nymeria::obstaclePossible(){
-	//TODO : hardcoded if actual dist < security dist +50
 	char nymeriaStateObstacle[] = "/nymeriaStateObstacle";
-	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
-	return  ((getParameter(nymeriaStateObstacle) < (getParameter(nymeriaSecurityDist) + 50))
+	return  ((getParameter(nymeriaStateObstacle) <= (NymeriaConstants::ANTICIPATING_OBSTACLE_DISTANCE))
 	       &&(getParameter(nymeriaStateObstacle) >= 0.0));
 }
 
