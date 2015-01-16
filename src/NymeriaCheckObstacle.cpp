@@ -14,7 +14,7 @@ void stateDroneCallback(const ardrone_autonomy::Navdata& data){
 }
 
 NymeriaCheckObstacle::NymeriaCheckObstacle(){}
-NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist){
+NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n){
 	int tmpSecurityDist = -1;
 
 	sumError = 0.0;
@@ -28,42 +28,19 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist
 
 	sub_navdata = nh->subscribe("/ardrone/navdata", 1, &stateDroneCallback);
 
-	this->securityDist = securityDist;
+	if(nh->hasParam("/nymeriaSecurityDist") && (nh->getParam("/nymeriaSecurityDist", tmpSecurityDist))){
 
-	try {
-	  if(securityDist >= 0.0){
-
-	    if(nh->hasParam("/nymeriaSecurityDist") && (nh->getParam("/nymeriaSecurityDist", tmpSecurityDist))){
-	      
-	      if(tmpSecurityDist != securityDist){
-		ROS_WARN("Given security distance does not match security distance given in Nymeria.");
-		ROS_WARN("First security distance given will be considered.");
-	      }
-
-	    }
-	    else {
-	      NymeriaMutexSecurityDistance::lock();
-	      nh->setParam("nymeriaSecurityDist", securityDist);
-	      NymeriaMutexSecurityDistance::unlock();
-	    }
-	    
-	  }
-	  else
-	    throw NymeriaInvalidSecurityDistance();
-
-	  //NymeriaMutexObstacle::lock();
-	  nh->setParam("nymeriaFactor", 1.0);
-	  //NymeriaMutexObstacle::unlock();
-
-
-
+		if(tmpSecurityDist != 100.0){
+			ROS_WARN("Current security distance has been overwritten.");
+		}
 
 	}
-	catch(NymeriaExceptions& error){
-		/* Display error message. */
-		fprintf(stderr, "%s", error.what());
-	}
 
+	NymeriaMutexSecurityDistance::lock();
+		nh->setParam("nymeriaSecurityDist", 100.0);
+	NymeriaMutexSecurityDistance::unlock();
+
+	nh->setParam("nymeriaFactor", 1.0);
 }
 
 void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
@@ -105,28 +82,40 @@ void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 	//regulation()
 }
 
-int NymeriaCheckObstacle::getSecurityDist(){
-	return securityDist;
+/**
+ * Getter function for security distance,
+ * in order to permit the user to retain its current value.
+ * @return security distance.
+ */
+double NymeriaCheckObstacle::getSecurityDist(){
+	double tmpSecurityDist;
+	char nymeriaSecurityDist[] = "/nymeriaSecurityDist";
+
+	nh->getParam(nymeriaSecurityDist, tmpSecurityDist);
+	return(tmpSecurityDist);
 }
 
-void NymeriaCheckObstacle::setSecurityDist(int sd){
-	securityDist = sd;
+/**
+ * Setter function for security distance,
+ * in order to permit the user to change its value.
+ * @param secDist security distance.
+ */
+void NymeriaCheckObstacle::setSecurityDist(double secDist){
 	try {
-		if(nh->hasParam("/nymeriaSecurityDist")){
+		if (secDist >= 0){
 			NymeriaMutexSecurityDistance::lock();
-			nh->setParam("nymeriaSecurityDist", securityDist);
+				nh->setParam("nymeriaSecurityDist", secDist);
 			NymeriaMutexSecurityDistance::unlock();
 		}
-		else throw NymeriaParamExc();
+		else
+			throw NymeriaInvalidSecurityDistance();
 
 	} catch(NymeriaExceptions& error){
 		/* Display error message. */
 		// TODO: wrap as ROS msg
 		fprintf(stderr, "%s", error.what());
 	}
-	
 }
-
 
 /**
 * Pilote le drone

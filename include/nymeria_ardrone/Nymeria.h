@@ -19,7 +19,7 @@ class Nymeria
 	friend class Controller;
 	public:
 		Nymeria();
-		Nymeria(ros::NodeHandle * n, double securityDist);
+		Nymeria(ros::NodeHandle * n);
 		void moveForward();
 		void moveBackward();
 		void moveLeft();
@@ -70,7 +70,7 @@ class Nymeria
 
 		/* Initialization helper functions; */
 		void init_safeActions();
-		void init_rosParams(int securityDist);
+		void init_rosParams();
 		void init_move_msg();
 		void init_publishers();
 		

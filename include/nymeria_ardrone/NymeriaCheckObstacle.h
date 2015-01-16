@@ -11,12 +11,12 @@ class NymeriaCheckObstacle
 	public:
 
 		NymeriaCheckObstacle();
-		NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist);
+		NymeriaCheckObstacle(ros::NodeHandle * n);
 
 		void inputCurFrontDist(int cfd);
 
-		int getSecurityDist();
-		void setSecurityDist(int sd);
+		double getSecurityDist();
+		void setSecurityDist(double secDist);
 
 	private:
 		ros::NodeHandle * nh;
@@ -31,7 +31,6 @@ class NymeriaCheckObstacle
 
 		ros::Subscriber sub_navdata;
 
-		int securityDist;
 		double pilotage ();
 		void regulation (double angleEstimated);
 		double PID (double lastError);
