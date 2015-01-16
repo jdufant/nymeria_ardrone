@@ -17,12 +17,12 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(){}
 NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n, int securityDist){
 	int tmpSecurityDist = -1;
 
-	sumError = 0.0;
+	//sumError = 0.0;
 	error = 0.0;
-	lastCmdEstimated = 0.0;
-	lastAngleEstimated = 0.0;
-	lastAngleEstimated2 = 0.0;
-	cmd = 0.0;
+	//lastCmdEstimated = 0.0;
+	//lastAngleEstimated = 0.0;
+	//lastAngleEstimated2 = 0.0;
+	//cmd = 0.0;
 
 	nh = n;
 
@@ -101,7 +101,7 @@ void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 	// TODO call back
 
 	ros::spinOnce();
-	regulation(pitch);
+	regulation(pitch, 0.1);
 	//regulation()
 }
 
@@ -137,46 +137,56 @@ void NymeriaCheckObstacle::setSecurityDist(int sd){
 * @param angleEstimated, angle retourné par les infos du drone
 * @return cmd
 */
-void NymeriaCheckObstacle::regulation (double angleEstimated){
-	double tmpStateObstacle;
-	double tmpSecurityDist;
-	double tmpFactor;
-	double tmpSpeedCmd;
+void NymeriaCheckObstacle::regulation (double angleEstimated, double userCmd){
+	double tmp_Dist_To_Obstacle(0.0);
+	double tmp_SecurityDist(0.0);
+	double cmd(0.0);			//speed factor after regulation
+	double estimatedCmd(0.0);
+	double lastError(0.0);
 
-	nh->getParam("/nymeriaStateObstacle", tmpStateObstacle);
-	nh->getParam("/nymeriaSecurityDist", tmpSecurityDist);
-	nh->getParam("/nymeriaFactor", tmpFactor);
+	nh->getParam("/nymeriaStateObstacle", tmp_Dist_To_Obstacle);
+	nh->getParam("/nymeriaSecurityDist", tmp_SecurityDist);
 	
 	//régule la cmd en fct de la distance
-	double lastCmd = cmd; // init
-	cmd = pilotage();
-	cmd = saturationPente(lastCmd);
-	saturationCommande(cmd);
-	printf("[NymeriaCheckObstacle::regulation] val cmd = %f\n", cmd);
+	//double lastCmd = cmd; // init
+
+	cmd = pilotage(tmp_Dist_To_Obstacle, tmp_SecurityDist, userCmd);
+	
+	//cmd = saturationPente(lastCmd);
+	//saturationCommande(cmd);
+	
+	printf("[NymeriaCheckObstacle::regulation] distance de securité = %f\n", tmp_SecurityDist);
 	
 	//convertie l'angle en cmd estimé
-	lastAngleEstimated2 = lastAngleEstimated;
-	lastAngleEstimated = angleEstimated;
-	double cmdEstimated = rebouclage(angleEstimated);
-	lastCmdEstimated = cmdEstimated;
+	//lastAngleEstimated2 = lastAngleEstimated;
+	//lastAngleEstimated = angleEstimated;
+
+	estimatedCmd = rebouclage(angleEstimated);
+
+	//lastCmdEstimated = cmdEstimated;
 	
 	//rebouclage avec regulation et retourne la cmd regulé
-	double lastError = error;
-	error = cmd - cmdEstimated;
-	sumError += error;
+	lastError = error;
+	error = cmd - estimatedCmd;
+	
+	//sumError += error;
 
-	// TODO mutex + try catch
+	///// TODO mutex + try catch /////
 	//NymeriaMutexObstacle::lock();
 	if(nh->hasParam("/nymeriaFactor")){
-	  tmpSpeedCmd = PID(lastError);
-	  tmpSpeedCmd = saturationPente(tmpSpeedCmd);
-	  saturationCommande(tmpSpeedCmd);
-		nh->setParam("nymeriaFactor", tmpSpeedCmd);
-		printf("[NymeriaCheckObstacle::regulation] pid(lasterroor) = %f\n", PID(lastError));
+
+	  	cmd = PID(lastError, cmd); // get the regulated command 
+	  
+	  	//tmpSpeedCmd = saturationPente(tmpSpeedCmd);
+	  	//saturationCommande(tmpSpeedCmd);
+
+		nh->setParam("nymeriaFactor", cmd);
+		printf("[NymeriaCheckObstacle::regulation] Cmd régulée = %f\n", cmd);
 	}
 		//else throw NymeriaParamExc();
 	//NymeriaMutexObstacle::unlock();
 }
+
 
 /*
 * Calcule la commande du drone en fonction de la cmd user et de la distance de l'obstacle et de la limite
@@ -186,30 +196,15 @@ void NymeriaCheckObstacle::regulation (double angleEstimated){
 * @param limite, distance limite à l'obstacle
 * @return cmd
 */
-double NymeriaCheckObstacle::pilotage (){
+double NymeriaCheckObstacle::pilotage (	const double& dist_To_Obstacle, const double& securityDist, const double& userCmd	){
 
-	double tmpStateObstacle;
-	double tmpSecurityDist;
-	double tmpFactor;
-
-	nh->getParam("/nymeriaStateObstacle", tmpStateObstacle);
-	nh->getParam("/nymeriaSecurityDist", tmpSecurityDist);
-	nh->getParam("/nymeriaFactor", tmpFactor);
-
-	double cmd = tmpStateObstacle - tmpSecurityDist;
-	if(cmd > 1.0){
-		cmd = 1.0;
-	} else if (cmd < -1.0){
-		cmd = -1.0;
-	}
-	cmd = cmd * tmpFactor / 100.0;
-	if(cmd > 1.0){
-		cmd = 1.0;
-	} else if (cmd < -1.0){
-		cmd = -1.0;
-	}
-	return cmd;
+	double cmdFactor = (dist_To_Obstacle - securityDist)/100; //new command caculated according to the distance
+	saturationCommande(cmdFactor);
+	cmdFactor = cmdFactor * userCmd; 
+	saturationCommande(cmdFactor);
+	return cmdFactor;
 }
+
 
 /*
 * Réalise la régulation de la commande
@@ -217,13 +212,15 @@ double NymeriaCheckObstacle::pilotage (){
 * @param lastError
 * @return la valeur à donner en commande au drone
 */
-double NymeriaCheckObstacle::PID (double lastError){
-	double Kp = 0.1105;
-	double Ki = 1.5935;
-	double Kd = 0.2541;
+double NymeriaCheckObstacle::PID (const double lastError, const double cmd){
+	double a0 = 1;
+	double a1 = 1;
+	double b0 = 0.208;
+	double b1 = -0.04901;
 
-	return Kp*error + Ki*sumError + Kd*(error - lastError);
+	return (b0*lastError/a1) + (b1*error/a1) + cmd;	
 }
+
 
 /*
 * Calcule la cmd estimé pour asservir la cmd
@@ -231,15 +228,11 @@ double NymeriaCheckObstacle::PID (double lastError){
 * @param angleEstimated, angle retourné par les infos du drone
 * @return cmdEstimated, angle convertie en cmd pour le rebouclage
 */
-double NymeriaCheckObstacle::rebouclage(double angleEstimated){
-	double a0 = 0.05191;
-	double a1 = 0.1217;
-	double a2 = 0.07727;
-	double b0 = -0.824;
-	double b1 = 1.0;
+double NymeriaCheckObstacle::rebouclage(const double& angleEstimated){
 	
-	return lastAngleEstimated2*a2/b0 + lastAngleEstimated*a1/b0 + angleEstimated*a0/b0 - lastCmdEstimated*b1/b0;
+	return angleEstimated * 0.043;
 }
+
 
 /*
 * Saturation de la pente de commande
@@ -247,23 +240,21 @@ double NymeriaCheckObstacle::rebouclage(double angleEstimated){
 * @param cmd, cmd a saturé
 * @return cmd, cmd saturé
 */
-double NymeriaCheckObstacle::saturationPente(double lastCmd){
-	double param = 0.5; //paramètre de saturation de la pente
-	if((cmd - lastCmd) > param){
-	  return (cmd + param);
-	} else if((cmd - lastCmd) < -param){
-	  return (cmd-param);
-	} else {
-		return cmd;
-	}
+double NymeriaCheckObstacle::saturationPente(const double lastCmd, const double param_saturation, double& currentCmd)
+{	
+	if((currentCmd - lastCmd) > param_saturation)
+	  	currentCmd += param_saturation;
+	
+	else if((currentCmd - lastCmd) < -param_saturation)
+	  	currentCmd -= param_saturation; 
+	
 }
 
 void NymeriaCheckObstacle::saturationCommande(double& cmd)
 {
-  if(cmd > 1.0){
-    cmd = 1.0;
-  } else if (cmd < -1.0){
-    cmd = -1.0;
-  }
-
+	if(cmd > 1.0)
+    	cmd = 1.0;
+  	
+  	else if (cmd < -1.0)
+	    cmd = -1.0;
 }
