@@ -35,19 +35,17 @@ int main(int argc, char **argv)
 
 void SensorInterface::cutBuffer(char* bufferIn, int size, int& valeur) {
   
-  int i=0;
-  char tmp_buffer[BUFFER_SIZE];
-  while (i < size){
-    if (bufferIn[i] == 'x')
-      break;
- 
-    else
-      tmp_buffer[i] = bufferIn[i];
+	int i=0;
+	char tmp_buffer[BUFFER_SIZE];
+	while (i < size){
+		if (bufferIn[i] == 'x')
+			break;
+		else
+			tmp_buffer[i] = bufferIn[i];
+		i++;
+	}
 
-    i++;
-  }
-
-  valeur = atoi(tmp_buffer);
+	valeur = atoi(tmp_buffer);
 }
 
 void SensorInterface::loop(ros::NodeHandle * n){

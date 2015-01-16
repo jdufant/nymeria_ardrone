@@ -83,8 +83,7 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 		}
 
 		ROS_INFO("value: 0x%02X\n", c);
-		//std::stringstream ss;
-
+		
 		switch(c){
 			case KEYCODE_q:
 				nymeria.turnLeft();

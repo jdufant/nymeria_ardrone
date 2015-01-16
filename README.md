@@ -53,6 +53,18 @@ $ rosrun nymeria_ardrone nymeria_sensor_interface
 ```
 
 By default the security distance is 100 cm.
+To change it just call the setSecurityDist(double secDist) from the class NymeriaCheckObstacle.
+```c++
+double getSecurityDist();
+void setSecurityDist(double secDist);
+```
+
+By default the sensor max range is 350 cm.
+To change it just call the setSensorMaxRange(double range) from the class NymeriaCheckObstacle.
+```c++
+double getSensorMaxRange();
+void setSensorMaxRange(double range);
+```
 
 Launch the nymeria_command executable node using :
 ```bash

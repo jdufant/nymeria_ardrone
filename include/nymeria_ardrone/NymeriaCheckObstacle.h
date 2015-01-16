@@ -17,6 +17,8 @@ class NymeriaCheckObstacle
 
 		double getSecurityDist();
 		void setSecurityDist(double secDist);
+		double getSensorMaxRange();
+		void setSensorMaxRange(double range);
 
 	private:
 		ros::NodeHandle * nh;
@@ -28,6 +30,7 @@ class NymeriaCheckObstacle
 		double lastAngleEstimated2;
 		double angleEstimated;
 		double cmd;
+		double sensorMaxRange;
 
 		ros::Subscriber sub_navdata;
 

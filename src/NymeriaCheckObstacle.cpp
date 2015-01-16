@@ -23,6 +23,7 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n){
 	lastAngleEstimated = 0.0;
 	lastAngleEstimated2 = 0.0;
 	cmd = 0.0;
+	sensorMaxRange = 350.0;
 
 	nh = n;
 
@@ -80,6 +81,24 @@ void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 	ros::spinOnce();
 	regulation(pitch);
 	//regulation()
+}
+
+/**
+ * Getter function for sensor max range,
+ * in order to permit the user to retain its current value.
+ * @return sensor max range.
+ */
+double NymeriaCheckObstacle::getSensorMaxRange(){
+	return(this->sensorMaxRange);
+}
+
+/**
+ * Setter function for sensor max range,
+ * in order to permit the user to change its value.
+ * @param range - sensor max range.
+ */
+void NymeriaCheckObstacle::setSensorMaxRange(double range){
+	this->sensorMaxRange = range;
 }
 
 /**
