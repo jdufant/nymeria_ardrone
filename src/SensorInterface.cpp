@@ -68,14 +68,14 @@ void SensorInterface::loop(ros::NodeHandle * n){
 	
 		nb_char = client.recv(message, BUFFER_SIZE);
 		if (nb_char != 0)
-		  cutBuffer(message, nb_char, cutValue);
+		 	cutBuffer(message, nb_char, cutValue);
 		
 		if(nb_char > 0)
 		  printf("Recu %d char : %d__", nb_char, cutValue);
 
 		printf("\n");
 		
-		if (cutValue >=0 && cutValue < 350)
+		if (cutValue >=0 && cutValue < nco.getSensorMaxRange())
 		  nco.inputCurFrontDist(cutValue);
 
 	 	loop_rate.sleep();
