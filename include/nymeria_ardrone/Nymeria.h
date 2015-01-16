@@ -44,9 +44,10 @@ class Nymeria
 		void setSecurityDist(double secDist);
 		double getMaxLinearSpeed();
 		void setMaxLinearSpeed(double speed);
+		double getLinearSpeed();
+		void setLinearSpeed(double speed);
 		double getMaxAngularSpeed();
 		void setMaxAngularSpeed(double speed);
-		double getLinearSpeed();
 		double getAngularSpeed();
 		
 	private:

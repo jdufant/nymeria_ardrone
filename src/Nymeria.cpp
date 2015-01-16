@@ -275,7 +275,7 @@ void Nymeria::setSecurityDist(double secDist){
 /**
  * Getter function for maximum linear speed,
  * in order to permit the user to retain its current value.
- * @return maximum linear speed
+ * @return maximum linear speed.
  */
 double Nymeria::getMaxLinearSpeed(){
 	return(this->maxLinearSpeed);
@@ -284,10 +284,27 @@ double Nymeria::getMaxLinearSpeed(){
 /**
  * Setter function for maximum linear speed,
  * in order to permit the user to change its value.
- * @param speed maximum linear speed.
+ * @param speed - maximum linear speed.
  */
 void Nymeria::setMaxLinearSpeed(double speed){
 	this->maxLinearSpeed = speed;
+}
+
+/**
+ * Getter function for current linear speed.
+ * @return current linear speed.
+ */
+double Nymeria::getLinearSpeed(){
+	return(this->linearSpeed);
+}
+
+/**
+ * Setter function for current linear speed,
+ * in order to permit the user to change its value.
+ * @param speed - linear speed.
+ */
+void Nymeria::setLinearSpeed(double speed){
+	this->linearSpeed = speed;
 }
 
 /**
@@ -302,19 +319,10 @@ double Nymeria::getMaxAngularSpeed(){
 /**
  * Setter function for maximum angular speed,
  * in order to permit the user to change its value.
- * @param speed maximum angular speed.
+ * @param speed - maximum angular speed.
  */
 void Nymeria::setMaxAngularSpeed(double speed){
 	this->maxAngularSpeed = speed;
-}
-
-/**
- * Getter function for linear speed,
- * in order to permit the user to retain its current value.
- * @return linear speed
- */
-double Nymeria::getLinearSpeed(){
-	return(this->linearSpeed);
 }
 
 /**
