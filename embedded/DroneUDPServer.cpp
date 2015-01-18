@@ -15,8 +15,21 @@
 #define NB_VAL 10 		// number for a mean value
 #define traitMargin 60 	// margin for filtering data in "traitement()"
 
+/**
+* \file DroneUDPServer
+*/
+
+
 int traitTab(int* tab, int size);
 
+/**
+* Reads the buffer char by char to detect a specific delimitation char
+* this delimitation char and all char after it are replaced by the null char in the read buffer
+* \param[in] fd file descriptor
+* \param[in, out] buf read buffer
+* \param[in] until delimitation char
+* \return number of char in the buffer before
+*/
 int serialport_read_until(int fd, char* buf, char until)
 {
     char b[1];
@@ -26,11 +39,11 @@ int serialport_read_until(int fd, char* buf, char until)
         n = read(fd, b, 1);  // read a char at a time
         if( n==-1) return -1;    // couldn't read
         if( n==0 ) {
-	  usleep(1000); // wait 1 msec, then try again
-	  continue;
+	  		usleep(1000); // wait 1 msec, then try again
+	  		continue;
         }
         buf[i] = b[0]; 
-	i++;
+		i++;
 
     } while( b[0] != until);
     
@@ -44,6 +57,9 @@ int serialport_read_until(int fd, char* buf, char until)
     return chread;
 }
 
+/**
+* Configure the serial port to read data
+* baudrate = 115200, 8N1, 
 void setSerialOptions( struct termios& options)
 {
   	/* Set Baud Rate */
@@ -63,8 +79,6 @@ void setSerialOptions( struct termios& options)
 	    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 	    // Disable Software Flow control
 	    options.c_iflag &= ~(IXON | IXOFF | IXANY);
-	    // Chose raw (not processed) output
-	    //options.c_oflag &= ~OPOST;
     }
 
 
@@ -167,11 +181,14 @@ int main()
 
 	close(fd);
 }
-
+/**
+* Filtering the value of an array
+*
+*/
 int traitTab(int* tab, int size)
 {
   int total = 0;
-  int moyenne = 0;
+  int meanVal = 0;
   const int ecart = 20;
 
   for(int i =0; i < size; i++) {
@@ -179,11 +196,11 @@ int traitTab(int* tab, int size)
     total += tab[i];
   }
 
-  moyenne = total/size;
-  //printf("moyenne intermédiaire = %d\n", moyenne);
+  meanVal = total/size;
+  //printf("meanVal intermédiaire = %d\n", meanVal);
 
   for(int i =0; i < size; i++){
-    if (abs(tab[i] - moyenne) > traitMargin){
+    if (abs(tab[i] - meanVal) > traitMargin){
       for (int j = i; j < size-1; j++)
 	tab[j] = tab[j+1];
       size--;
