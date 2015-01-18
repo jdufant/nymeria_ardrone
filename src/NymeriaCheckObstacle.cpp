@@ -158,26 +158,22 @@ void NymeriaCheckObstacle::setSecurityDist(double secDist){
 }
 
 /**
-* Pilote le drone
-*
-* @param tmpStateObstacle, retourné par le capteur
-* @param tmpFactor, cmd de l'utilisateur en pourcentage de vitesse max
-* @param tmpSecurityDist, distance limite à l'obstacle
-* @param angleEstimated, angle retourné par les infos du drone
-* @return cmd
+* Regulation method
+* Updates the speed factor stored in the ROS param "nymeriaFactor" according to the user orignial command and the estimated pitch of the drone
+* @param userCmd original command sent by user. Represented as a double corresponding to a linear speed factor
+* @param drone pitch given by sensors on drone
+* @return void
 */
-void NymeriaCheckObstacle::regulation (double angleEstimated, double userCmd){
+void NymeriaCheckObstacle::regulation (double estimatedAngle, double userCmd){
+
 	double tmp_Dist_To_Obstacle(0.0);
 	double tmp_SecurityDist(0.0);
-	double cmd(0.0);			//speed factor after regulation
+	double cmd(0.0);					//speed factor after regulation
 	double estimatedCmd(0.0);
 	double lastError(0.0);
 
 	nh->getParam("/nymeriaStateObstacle", tmp_Dist_To_Obstacle);
 	nh->getParam("/nymeriaSecurityDist", tmp_SecurityDist);
-	
-	//régule la cmd en fct de la distance
-	//double lastCmd = cmd; // init
 
 	cmd = pilotage(tmp_Dist_To_Obstacle, tmp_SecurityDist, userCmd);
 	
@@ -185,14 +181,9 @@ void NymeriaCheckObstacle::regulation (double angleEstimated, double userCmd){
 	//saturationCommande(cmd);
 	
 	printf("[NymeriaCheckObstacle::regulation] distance de securité = %f\n", tmp_SecurityDist);
-	
-	//convertie l'angle en cmd estimé
-	//lastAngleEstimated2 = lastAngleEstimated;
-	//lastAngleEstimated = angleEstimated;
 
-	estimatedCmd = rebouclage(angleEstimated);
+	estimatedCmd = rebouclage(estimatedAngle);
 
-	//lastCmdEstimated = cmdEstimated;
 	
 	//rebouclage avec regulation et retourne la cmd regulé
 	lastError = error;
