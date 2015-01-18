@@ -4,20 +4,41 @@
 #include <nymeria_ardrone/NymeriaMutexObstacle.h>
 #include <nymeria_ardrone/NymeriaMutexSecurityDistance.h>
 
+
+/**
+* \file NymeriaCheckObstacle
+* \author Team-Nymeria
+*/
+
+
 double pitch = 0.0;
 int droneState = 0;
 
+
+/**
+* \brief callback function for the subscriber sub_navdata
+* gets the pitch of the drone and its state
+* \param data variable where the value is stored, must be const
+*/
 void stateDroneCallback(const ardrone_autonomy::Navdata& data){
 	printf("%f\n", data.rotY);
 	pitch = data.rotY;
 	droneState = data.state;
 }
 
+/**
+* Default constructor
+*/
 NymeriaCheckObstacle::NymeriaCheckObstacle(){}
+
+/**
+* Constructor for the NymeriaCheckObstacle class
+* Contains the navdata subscriber, sets the security distance to 100.0 and the speed factor to 1.0 by default
+* \param n Node handle for ROS
+*/
 NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n){
 	int tmpSecurityDist = -1;
 
-	//sumError = 0.0;
 	error = 0.0;
 	sensorMaxRange = 350.0;
 

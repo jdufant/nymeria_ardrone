@@ -12,7 +12,8 @@
 
 
 #define BUFFER_SIZE 8
-#define NB_VAL 10
+#define NB_VAL 10 		// number for a mean value
+#define traitMargin 60 	// margin for filtering data in "traitement()"
 
 int traitTab(int* tab, int size);
 
@@ -114,7 +115,7 @@ int main()
 	if ( tcsetattr( fd, TCSANOW, &options ) == -1 )
 		perror("Error with tcsetattr");
 	else
-		printf("tcsetattr succeed\nGODZILLA version\n");
+		printf("tcsetattr succeed\nGODZILLA version.\n");
 
 	// Open UDP server //
 	UDPServer server("192.168.1.1", 7777);
@@ -132,7 +133,7 @@ int main()
 		  
 		if (chread > 0) {
 
-		    if((tabVal[cpt_tab] = atoi(readBuffer)) < 300){
+		    if((tabVal[cpt_tab] = atoi(readBuffer)) < 380){
 		      //printf("recu : %s\n", readBuffer);
 		      cpt_tab ++;
 		    }
@@ -182,7 +183,7 @@ int traitTab(int* tab, int size)
   //printf("moyenne intermédiaire = %d\n", moyenne);
 
   for(int i =0; i < size; i++){
-    if (abs(tab[i] - moyenne) > 60){
+    if (abs(tab[i] - moyenne) > traitMargin){
       for (int j = i; j < size-1; j++)
 	tab[j] = tab[j+1];
       size--;
