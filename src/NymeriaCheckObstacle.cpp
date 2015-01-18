@@ -61,6 +61,10 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n){
 	nh->setParam("nymeriaFactor", 1.0);
 }
 
+/**
+* Update the distance between the drone and the obstacle, this value is stored in a ROS param named /nymeriaStateObstacle 
+* \param cfd Current distance to the obstacle
+*/
 void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 	int stateObstacle;
 	try{
