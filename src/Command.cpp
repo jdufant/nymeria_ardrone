@@ -1,4 +1,4 @@
-#include <nymeria_ardrone/TeleopKeyboard.h>
+#include <nymeria_ardrone/Command.h>
 
 void callback (const ardrone_autonomy::Navdata& data){}
 
@@ -63,12 +63,13 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 	puts("enter : takeoff/landing");
 	puts("");
 
-	/*puts("y/h : increase/decrease max speeds by 10");
-	puts("u/j : increase/decrease only linear speed by 10%");
-	puts("i/k : increase/decrease only angular speed by 10 percent");
-	puts("");*/
+	puts("u/j : increase/decrease max linear speed by 10%");
+	puts("i/k : increase/decrease max angular speed by 10%");
+	puts("o/l : increase/decrease linear speed by 10%");
+	puts("p/m : increase/decrease angular speed by 10%");
 
-	puts("anything else : stop");
+	puts("");
+
 	puts("CTRL-C to quit");
 	puts("---------------------------");
 
@@ -124,18 +125,37 @@ void TeleopKeyboard::keyLoop(ros::NodeHandle * n)
 				}
 				break;				
 
-			case KEYCODE_a:
-				if(hovering == false){
-					ROS_WARN("Hovering mode ON");
-					hovering = true;
-				}
-
-				else {
-					ROS_WARN("Hovering mode OFF");
-					hovering = false;
-				}
+			case KEYCODE_u:
+				nymeria.increaseMaxLinearSpeed();
 				break;
 
+			case KEYCODE_j:
+				nymeria.decreaseMaxLinearSpeed();
+				break;
+
+			case KEYCODE_i:
+				nymeria.increaseMaxAngularSpeed();
+				break;
+
+			case KEYCODE_k:
+				nymeria.decreaseMaxAngularSpeed();
+				break;
+
+			case KEYCODE_o:
+				nymeria.increaseLinearSpeed();
+				break;
+
+			case KEYCODE_l:
+				nymeria.decreaseLinearSpeed();
+				break;
+
+			case KEYCODE_p:
+				nymeria.increaseAngularSpeed();
+				break;
+
+			case KEYCODE_m:
+				nymeria.decreaseAngularSpeed();
+				break;
 			}
 
 		loop_rate.sleep();

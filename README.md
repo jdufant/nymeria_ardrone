@@ -77,6 +77,14 @@ This node is the interface between you as a user who wish to send orders and the
 - *S* : move backward
 - *Q* : rotate left
 - *D* : rotate right
+- *UP* : move up
+- *DOWN* : move down
+- *i* : move down
+- *k* : move down
+- *o* : move down
+- *l* : move down
+- *p* : move down
+- *m* : move down
 - *SPACE* : stop
 
 The last step consists to run the launch the Controller node
