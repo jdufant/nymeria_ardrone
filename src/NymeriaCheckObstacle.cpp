@@ -6,8 +6,11 @@
 
 
 /**
-* \file NymeriaCheckObstacle
+* \file NymeriaCheckObstacle.cpp
+* \class NymeriaCheckObstacle NymeriaCheckObstacle.h
 * \author Team-Nymeria
+* \version 0.2
+* \date 18th of January 2015
 */
 
 
@@ -268,7 +271,7 @@ double NymeriaCheckObstacle::saturationPente(const double lastCmd, const double 
 /**
 * Saturate the value of a variable to 1.0
 *
-* @param[in, out] cmd, value ti saturate
+* @param[in, out] cmd, value to saturate
 */
 void NymeriaCheckObstacle::saturationCommande(double& cmd)
 {
