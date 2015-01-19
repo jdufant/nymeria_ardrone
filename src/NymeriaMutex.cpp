@@ -1,7 +1,7 @@
 #include <nymeria_ardrone/NymeriaMutex.h>
 
 /**
- * Defintion of the class Nymeriautex, which serves as the parent class for all mutexes used in the context of Nymeria.
+ * Defintion of the class NymeriaMutex, which serves as the parent class for all mutexes used in the context of Nymeria.
  **/
 
 /**
