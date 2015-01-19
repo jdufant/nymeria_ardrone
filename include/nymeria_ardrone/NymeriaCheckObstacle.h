@@ -6,6 +6,10 @@
 
 void stateDroneCallback(const ardrone_autonomy::Navdata& data);
 
+/**
+* Definition of the class NymeriaCheckObstacle, that declares all functionalities
+* in order to allow for obstacle detection.
+*/
 class NymeriaCheckObstacle
 {
 	public:
