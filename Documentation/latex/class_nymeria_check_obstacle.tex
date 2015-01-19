@@ -1,0 +1,138 @@
+\hypertarget{class_nymeria_check_obstacle}{}\section{Nymeria\+Check\+Obstacle Class Reference}
+\label{class_nymeria_check_obstacle}\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+
+
+{\ttfamily \#include $<$Nymeria\+Check\+Obstacle.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_nymeria_check_obstacle_a1f04bd678ea83029bcf54c3100f7c3c8}{Nymeria\+Check\+Obstacle} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\hyperlink{class_nymeria_check_obstacle_a6e99c59339b970f92602628dcaf982fb}{Nymeria\+Check\+Obstacle} (ros\+::\+Node\+Handle $\ast$n)
+\begin{DoxyCompactList}\small\item\em Constructor for the \hyperlink{class_nymeria_check_obstacle}{Nymeria\+Check\+Obstacle} class Contains the navdata subscriber, sets the security distance to 100.\+0 and the speed factor to 1.\+0 by default. \end{DoxyCompactList}\item 
+void \hyperlink{class_nymeria_check_obstacle_a4232159e2b12378f489291374a325510}{input\+Cur\+Front\+Dist} (int cfd)
+\begin{DoxyCompactList}\small\item\em Update the distance between the drone and the obstacle, this value is stored in a R\+O\+S param named /nymeria\+State\+Obstacle. \end{DoxyCompactList}\item 
+double \hyperlink{class_nymeria_check_obstacle_ace7bb41e1f1b18b170c528825531d75d}{get\+Security\+Dist} ()
+\begin{DoxyCompactList}\small\item\em Getter function for security distance, in order to permit the user to retain its current value. \end{DoxyCompactList}\item 
+void \hyperlink{class_nymeria_check_obstacle_a4b0be19492123996bed7775ba3d4364a}{set\+Security\+Dist} (double sec\+Dist)
+\begin{DoxyCompactList}\small\item\em Setter function for security distance, in order to permit the user to change its value. \end{DoxyCompactList}\item 
+double \hyperlink{class_nymeria_check_obstacle_a6c827aca5d2d91b52ddb0f4eca3dab24}{get\+Sensor\+Max\+Range} ()
+\begin{DoxyCompactList}\small\item\em Getter function for sensor max range, in order to permit the user to retain its current value. \end{DoxyCompactList}\item 
+void \hyperlink{class_nymeria_check_obstacle_a6c44d6701d4f9de0a21dc9d85215c3e3}{set\+Sensor\+Max\+Range} (double range)
+\begin{DoxyCompactList}\small\item\em Setter function for sensor max range, in order to permit the user to change its value. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_nymeria_check_obstacle_a1f04bd678ea83029bcf54c3100f7c3c8}{}\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\subsubsection[{Nymeria\+Check\+Obstacle}]{\setlength{\rightskip}{0pt plus 5cm}Nymeria\+Check\+Obstacle\+::\+Nymeria\+Check\+Obstacle (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_nymeria_check_obstacle_a1f04bd678ea83029bcf54c3100f7c3c8}
+
+
+Default constructor. 
+
+\hypertarget{class_nymeria_check_obstacle_a6e99c59339b970f92602628dcaf982fb}{}\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\subsubsection[{Nymeria\+Check\+Obstacle}]{\setlength{\rightskip}{0pt plus 5cm}Nymeria\+Check\+Obstacle\+::\+Nymeria\+Check\+Obstacle (
+\begin{DoxyParamCaption}
+\item[{ros\+::\+Node\+Handle $\ast$}]{n}
+\end{DoxyParamCaption}
+)}\label{class_nymeria_check_obstacle_a6e99c59339b970f92602628dcaf982fb}
+
+
+Constructor for the \hyperlink{class_nymeria_check_obstacle}{Nymeria\+Check\+Obstacle} class Contains the navdata subscriber, sets the security distance to 100.\+0 and the speed factor to 1.\+0 by default. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em n} & Node handle for R\+O\+S \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_nymeria_check_obstacle_ace7bb41e1f1b18b170c528825531d75d}{}\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!get\+Security\+Dist@{get\+Security\+Dist}}
+\index{get\+Security\+Dist@{get\+Security\+Dist}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\subsubsection[{get\+Security\+Dist}]{\setlength{\rightskip}{0pt plus 5cm}double Nymeria\+Check\+Obstacle\+::get\+Security\+Dist (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_nymeria_check_obstacle_ace7bb41e1f1b18b170c528825531d75d}
+
+
+Getter function for security distance, in order to permit the user to retain its current value. 
+
+\begin{DoxyReturn}{Returns}
+security distance. 
+\end{DoxyReturn}
+\hypertarget{class_nymeria_check_obstacle_a6c827aca5d2d91b52ddb0f4eca3dab24}{}\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!get\+Sensor\+Max\+Range@{get\+Sensor\+Max\+Range}}
+\index{get\+Sensor\+Max\+Range@{get\+Sensor\+Max\+Range}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\subsubsection[{get\+Sensor\+Max\+Range}]{\setlength{\rightskip}{0pt plus 5cm}double Nymeria\+Check\+Obstacle\+::get\+Sensor\+Max\+Range (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{class_nymeria_check_obstacle_a6c827aca5d2d91b52ddb0f4eca3dab24}
+
+
+Getter function for sensor max range, in order to permit the user to retain its current value. 
+
+\begin{DoxyReturn}{Returns}
+sensor max range. 
+\end{DoxyReturn}
+\hypertarget{class_nymeria_check_obstacle_a4232159e2b12378f489291374a325510}{}\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!input\+Cur\+Front\+Dist@{input\+Cur\+Front\+Dist}}
+\index{input\+Cur\+Front\+Dist@{input\+Cur\+Front\+Dist}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\subsubsection[{input\+Cur\+Front\+Dist}]{\setlength{\rightskip}{0pt plus 5cm}void Nymeria\+Check\+Obstacle\+::input\+Cur\+Front\+Dist (
+\begin{DoxyParamCaption}
+\item[{int}]{cfd}
+\end{DoxyParamCaption}
+)}\label{class_nymeria_check_obstacle_a4232159e2b12378f489291374a325510}
+
+
+Update the distance between the drone and the obstacle, this value is stored in a R\+O\+S param named /nymeria\+State\+Obstacle. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em cfd} & Current distance to the obstacle \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_nymeria_check_obstacle_a4b0be19492123996bed7775ba3d4364a}{}\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!set\+Security\+Dist@{set\+Security\+Dist}}
+\index{set\+Security\+Dist@{set\+Security\+Dist}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\subsubsection[{set\+Security\+Dist}]{\setlength{\rightskip}{0pt plus 5cm}void Nymeria\+Check\+Obstacle\+::set\+Security\+Dist (
+\begin{DoxyParamCaption}
+\item[{double}]{sec\+Dist}
+\end{DoxyParamCaption}
+)}\label{class_nymeria_check_obstacle_a4b0be19492123996bed7775ba3d4364a}
+
+
+Setter function for security distance, in order to permit the user to change its value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sec\+Dist} & security distance. \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_nymeria_check_obstacle_a6c44d6701d4f9de0a21dc9d85215c3e3}{}\index{Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}!set\+Sensor\+Max\+Range@{set\+Sensor\+Max\+Range}}
+\index{set\+Sensor\+Max\+Range@{set\+Sensor\+Max\+Range}!Nymeria\+Check\+Obstacle@{Nymeria\+Check\+Obstacle}}
+\subsubsection[{set\+Sensor\+Max\+Range}]{\setlength{\rightskip}{0pt plus 5cm}void Nymeria\+Check\+Obstacle\+::set\+Sensor\+Max\+Range (
+\begin{DoxyParamCaption}
+\item[{double}]{range}
+\end{DoxyParamCaption}
+)}\label{class_nymeria_check_obstacle_a6c44d6701d4f9de0a21dc9d85215c3e3}
+
+
+Setter function for sensor max range, in order to permit the user to change its value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em range} & -\/ sensor max range. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/nymeria\+\_\+ardrone/\hyperlink{_nymeria_check_obstacle_8h}{Nymeria\+Check\+Obstacle.\+h}\item 
+src/\hyperlink{_nymeria_check_obstacle_8cpp}{Nymeria\+Check\+Obstacle.\+cpp}\end{DoxyCompactItemize}

@@ -1,0 +1,108 @@
+nymeria\+\_\+ardrone is a \href{http://ros.org/}{\tt R\+O\+S} package for \href{http://ardrone2.parrot.com/}{\tt Parrot A\+R-\/\+Drone} quadrocopter. It acts as a layer and filters drone commands sent from an external controller. It helps the drone determine if movement orders are safe or not depending on the trajectory of an obstacle and, if so, to move accordingly. In practice it contains three main modules. The first, linked to sensors, allows the drone to detect an obstacle. The second gets drone commands and the last makes the link between them. User defines radius of an obstacle and drone is controlled by \hyperlink{class_nymeria}{Nymeria} to slow down and stop in front of it. The driver supports A\+R-\/\+Drone 2.\+0.
+
+\subsection*{Table of Contents}
+
+
+\begin{DoxyItemize}
+\item \href{#requirements}{\tt Requirements}
+\item \href{#installation}{\tt Installation}
+\item \href{#how-to-run}{\tt How to run it}
+\item \href{#how-does-it-work}{\tt How does it work}
+\end{DoxyItemize}
+
+\subsection*{Requirements}
+
+
+\begin{DoxyItemize}
+\item {\itshape R\+O\+S}\+: \href{http://wiki.ros.org/ROS/Installation}{\tt Robot Operating System}
+\item {\itshape ardrone\+\_\+autonomy}\+: \href{https://github.com/AutonomyLab/ardrone_autonomy}{\tt Driver for Ardrone 1.\+0 \& 2.\+0}
+\item {\itshape Sensor}\+: any kind of tool enabling to retrieve range between drone and front obstacles
+\end{DoxyItemize}
+
+\subsection*{Installation}
+
+The first step is to install R\+O\+S following the \href{http://wiki.ros.org/ROS/Installation}{\tt (Robot Operating System installation tutorial)}. We have successfully tested two versions \+: hydro and indigo.
+
+Then create a \href{http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment#Create_a_ROS_Workspace}{\tt R\+O\+S workspace}.
+
+In order to communicate with the drone you will need to download \href{https://github.com/AutonomyLab/ardrone_autonomy}{\tt ardrone\+\_\+autonomy} which provide the ardrone\+\_\+driver. Follow the instruction in the \href{https://github.com/AutonomyLab/ardrone_autonomy#installation}{\tt installation section}.
+
+Navigate to your catkin\+\_\+workspace sources repository. \begin{quote}
+\$ cd $\sim$/catkin\+\_\+ws/src \end{quote}
+
+
+Download the nymeria\+\_\+ardrone package using the following command in a terminal. \begin{quote}
+\$ git clone \href{https://github.com/jdufant/nymeria_ardrone}{\tt https\+://github.\+com/jdufant/nymeria\+\_\+ardrone} \end{quote}
+
+
+You might prefer to reach \href{https://github.com/jdufant/nymeria_ardrone}{\tt nymeria\+\_\+ardrone webpage} and download and unpack the nymeria\+\_\+ardrone package.
+
+Go back to your root workspace repository. \begin{quote}
+\$ cd $\sim$/catkin\+\_\+ws \end{quote}
+
+
+Use the catkin\+\_\+make command to compile \begin{quote}
+\$ catkin\+\_\+make \end{quote}
+
+
+\subsection*{How to run it}
+
+First switch on Wifi on your computer and connect it to your Ardrone 2.\+0.
+
+You must launch the master node. Navigate to your catkin\+\_\+workspace ({\ttfamily \$ cd $\sim$/catkin\+\_\+ws}) and type the following command \+: \begin{quote}
+\$ roscore \end{quote}
+
+
+Then launch the ardrone\+\_\+autonomy driver\textquotesingle{}s executable node. You can use \+: \begin{quote}
+\$ rosrun ardrone\+\_\+autonomy ardrone\+\_\+driver \end{quote}
+
+
+Or put it in a custom launch file with your desired parameters.
+
+Navigate to $\sim$/catkin\+\_\+ws/src/nymeria\+\_\+ardrone/src/\+Sensor\+Interface.cpp and find the line {\itshape nco.\+input\+Cur\+Front\+Dist(cut\+Value);} Replace the \textquotesingle{}cut\+Value\textquotesingle{} variable by the current distance of the front sensor of your drone. Once done, run the sensor\+\_\+interface node \+: \begin{quote}
+\$ rosrun nymeria\+\_\+ardrone nymeria\+\_\+sensor\+\_\+interface \end{quote}
+
+
+By default the security distance is 100 cm. To change it just call the set\+Security\+Dist(double sec\+Dist) from the class \hyperlink{class_nymeria_check_obstacle}{Nymeria\+Check\+Obstacle}. 
+\begin{DoxyCode}
+\textcolor{keywordtype}{double} getSecurityDist();
+\textcolor{keywordtype}{void} setSecurityDist(\textcolor{keywordtype}{double} secDist);
+\end{DoxyCode}
+
+
+By default the sensor max range is 350 cm. To change it just call the set\+Sensor\+Max\+Range(double range) from the class \hyperlink{class_nymeria_check_obstacle}{Nymeria\+Check\+Obstacle}. 
+\begin{DoxyCode}
+\textcolor{keywordtype}{double} getSensorMaxRange();
+\textcolor{keywordtype}{void} setSensorMaxRange(\textcolor{keywordtype}{double} range);
+\end{DoxyCode}
+
+
+Launch the nymeria\+\_\+command executable node using \+: \begin{quote}
+\$ rosrun nymeria\+\_\+ardrone nymeria\+\_\+command \end{quote}
+
+
+This node is the interface between you as a user who wish to send orders and the drone. Command are sent from keystroke detailled below.
+\begin{DoxyItemize}
+\item {\itshape E\+N\+T\+E\+R} \+: L\+A\+N\+D / T\+A\+K\+E O\+F\+F
+\item {\itshape Z} \+: move forward
+\item {\itshape S} \+: move backward
+\item {\itshape Q} \+: rotate left
+\item {\itshape D} \+: rotate right
+\item {\itshape U\+P} \+: move up
+\item {\itshape D\+O\+W\+N} \+: move down
+\item {\itshape i} \+: move down
+\item {\itshape k} \+: move down
+\item {\itshape o} \+: move down
+\item {\itshape l} \+: move down
+\item {\itshape p} \+: move down
+\item {\itshape m} \+: move down
+\item {\itshape S\+P\+A\+C\+E} \+: stop
+\end{DoxyItemize}
+
+The last step consists to run the launch the Controller node \begin{quote}
+\$ rosrun nymeria\+\_\+ardrone controller \end{quote}
+
+
+You are ready to go. Just stroke the appropriate key from the nymeria\+\_\+command interface. Your drone will naturally keep the inputed security distance between any front obstacle and itself.
+
+\subsection*{How does it work}

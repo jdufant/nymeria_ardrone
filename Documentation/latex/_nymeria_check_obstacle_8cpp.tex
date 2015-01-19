@@ -1,0 +1,47 @@
+\hypertarget{_nymeria_check_obstacle_8cpp}{}\section{src/\+Nymeria\+Check\+Obstacle.cpp File Reference}
+\label{_nymeria_check_obstacle_8cpp}\index{src/\+Nymeria\+Check\+Obstacle.\+cpp@{src/\+Nymeria\+Check\+Obstacle.\+cpp}}
+{\ttfamily \#include $<$nymeria\+\_\+ardrone/\+Nymeria\+Check\+Obstacle.\+h$>$}\\*
+{\ttfamily \#include $<$nymeria\+\_\+ardrone/\+Nymeria\+Param\+Exc.\+h$>$}\\*
+{\ttfamily \#include $<$nymeria\+\_\+ardrone/\+Nymeria\+Invalid\+Security\+Distance.\+h$>$}\\*
+{\ttfamily \#include $<$nymeria\+\_\+ardrone/\+Nymeria\+Mutex\+Obstacle.\+h$>$}\\*
+{\ttfamily \#include $<$nymeria\+\_\+ardrone/\+Nymeria\+Mutex\+Security\+Distance.\+h$>$}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{_nymeria_check_obstacle_8cpp_a56de6864332e5218374e99a4283252c3}{state\+Drone\+Callback} (const ardrone\+\_\+autonomy\+::\+Navdata \&data)
+\begin{DoxyCompactList}\small\item\em callback function for the subscriber sub\+\_\+navdata gets the pitch of the drone and its state \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+double \hyperlink{_nymeria_check_obstacle_8cpp_a34c057a0378030db67bd6a129f37d938}{pitch} = 0.\+0
+\item 
+int \hyperlink{_nymeria_check_obstacle_8cpp_a71105afde2dcfcbbe8102c3e8f1ef393}{drone\+State} = 0
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{_nymeria_check_obstacle_8cpp_a56de6864332e5218374e99a4283252c3}{}\index{Nymeria\+Check\+Obstacle.\+cpp@{Nymeria\+Check\+Obstacle.\+cpp}!state\+Drone\+Callback@{state\+Drone\+Callback}}
+\index{state\+Drone\+Callback@{state\+Drone\+Callback}!Nymeria\+Check\+Obstacle.\+cpp@{Nymeria\+Check\+Obstacle.\+cpp}}
+\subsubsection[{state\+Drone\+Callback}]{\setlength{\rightskip}{0pt plus 5cm}void state\+Drone\+Callback (
+\begin{DoxyParamCaption}
+\item[{const ardrone\+\_\+autonomy\+::\+Navdata \&}]{data}
+\end{DoxyParamCaption}
+)}\label{_nymeria_check_obstacle_8cpp_a56de6864332e5218374e99a4283252c3}
+
+
+callback function for the subscriber sub\+\_\+navdata gets the pitch of the drone and its state 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & variable where the value is stored, must be const \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Variable Documentation}
+\hypertarget{_nymeria_check_obstacle_8cpp_a71105afde2dcfcbbe8102c3e8f1ef393}{}\index{Nymeria\+Check\+Obstacle.\+cpp@{Nymeria\+Check\+Obstacle.\+cpp}!drone\+State@{drone\+State}}
+\index{drone\+State@{drone\+State}!Nymeria\+Check\+Obstacle.\+cpp@{Nymeria\+Check\+Obstacle.\+cpp}}
+\subsubsection[{drone\+State}]{\setlength{\rightskip}{0pt plus 5cm}int drone\+State = 0}\label{_nymeria_check_obstacle_8cpp_a71105afde2dcfcbbe8102c3e8f1ef393}
+\hypertarget{_nymeria_check_obstacle_8cpp_a34c057a0378030db67bd6a129f37d938}{}\index{Nymeria\+Check\+Obstacle.\+cpp@{Nymeria\+Check\+Obstacle.\+cpp}!pitch@{pitch}}
+\index{pitch@{pitch}!Nymeria\+Check\+Obstacle.\+cpp@{Nymeria\+Check\+Obstacle.\+cpp}}
+\subsubsection[{pitch}]{\setlength{\rightskip}{0pt plus 5cm}double pitch = 0.\+0}\label{_nymeria_check_obstacle_8cpp_a34c057a0378030db67bd6a129f37d938}
