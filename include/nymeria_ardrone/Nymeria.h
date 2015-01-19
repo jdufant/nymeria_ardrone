@@ -11,7 +11,7 @@
 #include <nymeria_ardrone/Controller.h>
 
 /**
- * Declaration of the class Nymeria, that declares all functionalities
+ * Definitions of the class Nymeria, that declares all functionalities
  * in order to allow for drone navigation with obstacle detection and avoidance.
  */
 class Nymeria

@@ -4,20 +4,41 @@
 #include <nymeria_ardrone/NymeriaMutexObstacle.h>
 #include <nymeria_ardrone/NymeriaMutexSecurityDistance.h>
 
+
+/**
+* \file NymeriaCheckObstacle
+* \author Team-Nymeria
+*/
+
+
 double pitch = 0.0;
 int droneState = 0;
 
+
+/**
+* \brief callback function for the subscriber sub_navdata
+* gets the pitch of the drone and its state
+* \param data variable where the value is stored, must be const
+*/
 void stateDroneCallback(const ardrone_autonomy::Navdata& data){
 	printf("%f\n", data.rotY);
 	pitch = data.rotY;
 	droneState = data.state;
 }
 
+/**
+* Default constructor
+*/
 NymeriaCheckObstacle::NymeriaCheckObstacle(){}
+
+/**
+* Constructor for the NymeriaCheckObstacle class
+* Contains the navdata subscriber, sets the security distance to 100.0 and the speed factor to 1.0 by default
+* \param n Node handle for ROS
+*/
 NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n){
 	int tmpSecurityDist = -1;
 
-	//sumError = 0.0;
 	error = 0.0;
 	sensorMaxRange = 350.0;
 
@@ -40,6 +61,10 @@ NymeriaCheckObstacle::NymeriaCheckObstacle(ros::NodeHandle * n){
 	nh->setParam("nymeriaFactor", 1.0);
 }
 
+/**
+* Update the distance between the drone and the obstacle, this value is stored in a ROS param named /nymeriaStateObstacle 
+* \param cfd Current distance to the obstacle
+*/
 void NymeriaCheckObstacle::inputCurFrontDist(int cfd){
 	int stateObstacle;
 	try{
@@ -133,47 +158,31 @@ void NymeriaCheckObstacle::setSecurityDist(double secDist){
 }
 
 /**
-* Pilote le drone
-*
-* @param tmpStateObstacle, retourné par le capteur
-* @param tmpFactor, cmd de l'utilisateur en pourcentage de vitesse max
-* @param tmpSecurityDist, distance limite à l'obstacle
-* @param angleEstimated, angle retourné par les infos du drone
-* @return cmd
+* Regulation method
+* Updates the speed factor stored in the ROS param "nymeriaFactor" according to the user orignial command and the estimated pitch of the drone
+* @param userCmd original command sent by user. Represented as a double corresponding to a linear speed factor
+* @param drone pitch given by sensors on drone
+* @return void
 */
-void NymeriaCheckObstacle::regulation (double angleEstimated, double userCmd){
+void NymeriaCheckObstacle::regulation (double estimatedAngle, double userCmd){
+
 	double tmp_Dist_To_Obstacle(0.0);
 	double tmp_SecurityDist(0.0);
-	double cmd(0.0);			//speed factor after regulation
+	double cmd(0.0);					//speed factor after regulation
 	double estimatedCmd(0.0);
 	double lastError(0.0);
 
 	nh->getParam("/nymeriaStateObstacle", tmp_Dist_To_Obstacle);
 	nh->getParam("/nymeriaSecurityDist", tmp_SecurityDist);
-	
-	//régule la cmd en fct de la distance
-	//double lastCmd = cmd; // init
 
 	cmd = pilotage(tmp_Dist_To_Obstacle, tmp_SecurityDist, userCmd);
 	
-	//cmd = saturationPente(lastCmd);
-	//saturationCommande(cmd);
-	
 	printf("[NymeriaCheckObstacle::regulation] distance de securité = %f\n", tmp_SecurityDist);
-	
-	//convertie l'angle en cmd estimé
-	//lastAngleEstimated2 = lastAngleEstimated;
-	//lastAngleEstimated = angleEstimated;
 
-	estimatedCmd = rebouclage(angleEstimated);
+	estimatedCmd = rebouclage(estimatedAngle);
 
-	//lastCmdEstimated = cmdEstimated;
-	
-	//rebouclage avec regulation et retourne la cmd regulé
 	lastError = error;
 	error = cmd - estimatedCmd;
-	
-	//sumError += error;
 
 	///// TODO mutex + try catch /////
 	//NymeriaMutexObstacle::lock();
@@ -192,13 +201,13 @@ void NymeriaCheckObstacle::regulation (double angleEstimated, double userCmd){
 }
 
 
-/*
-* Calcule la commande du drone en fonction de la cmd user et de la distance de l'obstacle et de la limite
+/**
+* First regulataion of the speed factor command regarding the drone distance to obstacle
 *
-* @param distance, retourné par le capteur
-* @param cmd_user, cmd de l'utilisateur en pourcentage de vitesse max
-* @param limite, distance limite à l'obstacle
-* @return cmd
+* @param[in] dist_To_Obstacle distance of the drone from the obstacle
+* @param[in] securityDist security distance
+* @param[in] userCmd initial user command (as speed factor)
+* @return regulated command
 */
 double NymeriaCheckObstacle::pilotage (	const double& dist_To_Obstacle, const double& securityDist, const double& userCmd	){
 
@@ -210,11 +219,11 @@ double NymeriaCheckObstacle::pilotage (	const double& dist_To_Obstacle, const do
 }
 
 
-/*
-* Réalise la régulation de la commande
+/**
+* PID part of the regulation
 * 
-* @param lastError
-* @return la valeur à donner en commande au drone
+* @param[in] lastError
+* @return regulated command
 */
 double NymeriaCheckObstacle::PID (const double lastError, const double cmd){
 	double a0 = 1;
@@ -226,23 +235,25 @@ double NymeriaCheckObstacle::PID (const double lastError, const double cmd){
 }
 
 
-/*
-* Calcule la cmd estimé pour asservir la cmd
+/**
+* Conversion between the pitch of the drone and the speed factor
 * 
-* @param angleEstimated, angle retourné par les infos du drone
-* @return cmdEstimated, angle convertie en cmd pour le rebouclage
+* @param[in] estimatedAngle drone pitch
+* @return speed factor
 */
-double NymeriaCheckObstacle::rebouclage(const double& angleEstimated){
+double NymeriaCheckObstacle::rebouclage(const double& estimatedAngle){
 	
-	return angleEstimated * 0.043;
+	return estimatedAngle * 0.043;
 }
 
 
-/*
-* Saturation de la pente de commande
+/**
+* Saturation of the derivative
 * 
-* @param cmd, cmd a saturé
-* @return cmd, cmd saturé
+* @param lastCmd last value of the variable to saturate
+* @param currentCmd current value of the variable to saturate
+* @param param_saturation set the derivative limit
+* @return new saturated value
 */
 double NymeriaCheckObstacle::saturationPente(const double lastCmd, const double param_saturation, double& currentCmd)
 {	
@@ -254,6 +265,11 @@ double NymeriaCheckObstacle::saturationPente(const double lastCmd, const double 
 	
 }
 
+/**
+* Saturate the value of a variable to 1.0
+*
+* @param[in, out] cmd, value ti saturate
+*/
 void NymeriaCheckObstacle::saturationCommande(double& cmd)
 {
 	if(cmd > 1.0)

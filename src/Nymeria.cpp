@@ -7,13 +7,17 @@
 #include <string.h>
 
 /**
- * Definition of the class Nymeria, that defines all functionalities
- * in order to allow for drone navigation with obstacle detection and avoidance.
+ * \file Nymeria.cpp
+ * \class Nymeria Nymeria.h 
+ * \author Team-Nymeria
+ * \version 0.2
+ * \date 18th of January 2015 
  */
 
 /* PUBLIC methods */
 
 /* Constructors */
+
 /**
  * Default empty constructor.
  */
@@ -51,7 +55,7 @@ Nymeria::Nymeria(ros::NodeHandle * n){
 };
 
 /**
- * Command in order to move drone forward.
+ * @brief Command in order to move drone forward.
  */
 void Nymeria::moveForward(){
 	NymeriaMutexCommand::lock();
