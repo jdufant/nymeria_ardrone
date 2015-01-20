@@ -3,6 +3,10 @@
 
 #include <nymeria_ardrone/NymeriaMutex.h>
 
+/**
+* Defintion of the class NymeriaMutexObstacle, which manages access to the ROS Parameter nymeriaStateObstacle.
+**/
+
 class NymeriaMutexObstacle: public NymeriaMutex{
 	public:
 		static NymeriaMutexObstacle * getInstance();
