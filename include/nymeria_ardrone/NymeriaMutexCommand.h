@@ -3,6 +3,10 @@
 
 #include <nymeria_ardrone/NymeriaMutex.h>
 
+/**
+* Defintion of the class NymeriaMutexCommand, which manages access to the ROS Parameter nymeriaCommand.
+**/
+
 class NymeriaMutexCommand: public NymeriaMutex{
 	public:
 		static NymeriaMutexCommand * getInstance();
