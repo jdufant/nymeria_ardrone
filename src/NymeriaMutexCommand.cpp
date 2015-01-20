@@ -6,7 +6,7 @@
 **/
 
 /**
-* Default constructor in order to create an object of type NymeriaMutex.
+* Default constructor in order to create an object of type NymeriaMutexCommand.
 **/
 NymeriaMutexCommand::NymeriaMutexCommand(){};
 
