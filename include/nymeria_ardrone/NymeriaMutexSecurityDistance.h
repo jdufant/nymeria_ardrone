@@ -2,6 +2,10 @@
 #define NYMERIA_SECURITY_DISTANCE_H
 #include <nymeria_ardrone/NymeriaMutex.h>
 
+/**
+* Defintion of the class NymeriaMutexSecurityDistance, which manages access to the ROS Parameter nymeriaSecurityDistance.
+**/
+
 class NymeriaMutexSecurityDistance: public NymeriaMutex{
 public:
   static NymeriaMutexSecurityDistance * getInstance();
