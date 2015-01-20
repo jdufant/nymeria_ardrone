@@ -31,8 +31,8 @@ Nymeria::Nymeria(ros::NodeHandle * n){
 
 	maxLinearSpeed = 1.0;
 	maxAngularSpeed = 1.0;
-	linearSpeed = 0.05; // TODO, should be 1.0
-	angularSpeed = 0.05; // TODO, should be 1.0
+	linearSpeed = 0.08;
+	angularSpeed = 0.4;
 	lastCmd = NymeriaConstants::INIT;
 
 	/* Initialize move_msg. */
@@ -676,8 +676,6 @@ void Nymeria::reactionRoutine(){
  * Method in order to keep security distance by moving backward if necessary.
  */
 void Nymeria::keepSecurityDistance(){
-	char nymeriaCommand[] = "/nymeriaCommand";
-	int tmpCommand = getParameter(nymeriaCommand);
 
 	if(underSecurityDist())
 		triggerAction(NymeriaConstants::M_BACKWARD);
